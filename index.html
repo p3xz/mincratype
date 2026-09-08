@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MinCraType</title>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <nav>
+            <div class="logo">
+                MinCraType
+            </div>
+
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#stats">Stats</a>
+                <a href="#leaderboard">Leaderboard</a>
+                <a href="#about">About</a>
+            </div>
+        </nav>
+    </header>
+
+
+    <!-- MAIN -->
+    <main>
+
+        <!-- HOME / INTRO -->
+        <section id="home" class="hero">
+            <h1>Welcome to MinCraType!</h1>
+            <p>Test your typing speed and accuracy.</p>
+        </section>
+
+
+        <!-- TYPING TEST -->
+        <section id="typing-test" class="typing-test">
+
+            <!-- STATS -->
+            <div id="stats" class="stats">
+
+                <div class="stat">
+                    <span>WPM</span>
+                    <strong id="wpm">0</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Accuracy</span>
+                    <strong id="accuracy">100%</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Time</span>
+                    <strong id="timer">60</strong>
+                </div>
+
+            </div>
+
+
+            <!-- TEXT TO TYPE -->
+            <div class="typing-text" id="typing-text">
+                The quick brown fox jumps over the lazy dog.
+                Learning to type faster takes practice and patience.
+                Keep your eyes on the screen and focus on accuracy.
+            </div>
+
+
+            <!-- USER INPUT -->
+            <textarea
+                id="typing-input"
+                placeholder="Start typing here..."
+                autofocus>
+            </textarea>
+
+
+            <!-- CONTROLS -->
+            <div class="controls">
+                <button id="start-btn">Start Test</button>
+                <button id="restart-btn">Restart</button>
+            </div>
+
+        </section>
+
+
+        <!-- RESULTS -->
+        <section id="results" class="results">
+
+            <h2>Test Results</h2>
+
+            <div class="result-stats">
+                <p>WPM: <span id="final-wpm">0</span></p>
+                <p>Accuracy: <span id="final-accuracy">100%</span></p>
+                <p>Mistakes: <span id="mistakes">0</span></p>
+                <p>Characters: <span id="characters">0</span></p>
+            </div>
+
+            <button id="try-again-btn">Try Again</button>
+
+        </section>
+
+
+        <!-- LEADERBOARD -->
+        <section id="leaderboard" class="leaderboard">
+
+            <h2>Leaderboard</h2>
+
+            <p>Leaderboard coming soon...</p>
+
+        </section>
+
+
+        <!-- ABOUT -->
+        <section id="about" class="about">
+
+            <h2>About MinCraType</h2>
+
+            <p>
+                MinCraType is a typing speed test designed to help
+                users improve their typing speed and accuracy.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            <a href="https://instagram.com/nam7sh" target="_blank">
+                Developed by Namish
+            </a>
+        </p>
+
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>
