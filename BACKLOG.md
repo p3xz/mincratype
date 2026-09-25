@@ -1,0 +1,38 @@
+# MINCRATYPE Backlog
+
+Small, shippable improvements. One per day keeps the commit graph green.
+
+## Test modes
+- [ ] Word-count mode (25 / 50 / 100 words) alongside timer modes
+- [ ] Quote mode with a pack of famous short quotes
+- [ ] Zen mode: no timer, endless words, stats on demand
+- [ ] Custom timer input (any number of seconds)
+- [ ] Daily challenge: same seeded word list for everyone, once per day
+
+## Words and languages
+- [ ] Code word pack (keywords and symbols for programmers)
+- [ ] Additional language word lists (starting with Hindi transliteration pack)
+- [ ] Difficulty filter: short words only / long words only
+
+## Stats and feedback
+- [ ] Per-second WPM line chart on the results screen
+- [ ] Key heatmap showing slowest / most-missed keys
+- [ ] Personal-best history sparkline per mode
+- [ ] Blind mode: typed characters stay hidden until the word is done
+
+## Customization
+- [ ] Caret styles: line, block, underline, outline
+- [ ] Theme variants: Nether (red), End (purple), Deep Dark
+- [ ] Keyboard sound packs (clacky, thocky, silent-ish)
+- [ ] Toggle for smooth caret vs instant caret
+
+## Social and sharing
+- [ ] Shareable result card exported as a PNG image
+- [ ] Copy-to-clipboard result summary text
+- [ ] Multiplayer race over WebSocket (simple rooms)
+
+## Platform
+- [ ] PWA support: installable, works offline after first load
+- [ ] Mobile haptics via navigator.vibrate on keypress
+- [ ] Respect prefers-reduced-motion for caret and slide animations
+- [ ] Focus mode: hide keyboard and live stats while typing
