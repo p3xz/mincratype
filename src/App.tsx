@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTypingTest } from "./hooks/useTypingTest";
-import { getAllBests } from "./lib/storage";
-import { isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
+import { getAllBests, getBest, saveBest } from "./lib/storage";
+import { finishChime, isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
 import ModeSelect from "./components/ModeSelect";
 import TopBar from "./components/TopBar";
 import Footer from "./components/Footer";
+import Results from "./components/Results";
 import Keyboard, { pillLabel } from "./components/Keyboard";
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
   const [recent, setRecent] = useState<string[]>([]);
   const [kbVisible, setKbVisible] = useState(false);
   const [muted, setMutedState] = useState(isMuted());
+  const [isNewBest, setIsNewBest] = useState(false);
 
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
@@ -31,6 +33,15 @@ export default function App() {
       setRecent([]);
     }
   }, [test.status]);
+
+  // On finish: record personal best, play the XP chime.
+  useEffect(() => {
+    if (test.status === "finished" && test.result) {
+      setIsNewBest(saveBest(test.result.mode, test.result.wpm, test.result.accuracy));
+      setBests(getAllBests());
+      finishChime();
+    }
+  }, [test.status, test.result]);
 
   const pressVisual = useCallback((code: string, down: boolean) => {
     setPressed((prev) => {
@@ -192,19 +203,13 @@ export default function App() {
                   />
                 ) : (
                   test.result && (
-                    <div className="font-type text-sm space-y-1 text-center">
-                      <div className="pixel-text text-4xl text-grass-400 mb-6">
-                        {Math.round(test.result.wpm)} WPM
-                      </div>
-                      <div className="text-stone-400">
-                        raw {Math.round(test.result.raw)} - acc{" "}
-                        {test.result.accuracy.toFixed(1)}% - con{" "}
-                        {test.result.consistency.toFixed(1)}%
-                      </div>
-                      <div className="text-stone-500 text-xs mt-2">
-                        press TAB to retry
-                      </div>
-                    </div>
+                    <Results
+                      result={test.result}
+                      isNewBest={isNewBest}
+                      best={getBest(test.result.mode)}
+                      onRetry={test.restart}
+                      onMenu={exitToMenu}
+                    />
                   )
                 )}
               </div>
@@ -214,9 +219,9 @@ export default function App() {
                 recent={recent}
                 onPress={onKbPress}
               />
-              <p className="mc-kb-hint text-center pt-4">
-                TAB TO RESTART
-              </p>
+              {test.status !== "finished" && (
+                <p className="mc-kb-hint text-center pt-4">TAB TO RESTART</p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
