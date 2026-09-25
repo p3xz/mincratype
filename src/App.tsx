@@ -1,40 +1,134 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTypingTest } from "./hooks/useTypingTest";
 import { getAllBests } from "./lib/storage";
+import { isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
 import ModeSelect from "./components/ModeSelect";
 import TopBar from "./components/TopBar";
 import Footer from "./components/Footer";
+import Keyboard, { pillLabel } from "./components/Keyboard";
 
 export default function App() {
   const test = useTypingTest(30);
   const [phase, setPhase] = useState<"menu" | "active">("menu");
   const [bests, setBests] = useState(getAllBests);
+  const [pressed, setPressed] = useState<Set<string>>(new Set());
+  const [recent, setRecent] = useState<string[]>([]);
+  const [kbVisible, setKbVisible] = useState(false);
+  const [muted, setMutedState] = useState(isMuted());
 
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
-  const keyRef = useRef(test.handleKey);
-  keyRef.current = test.handleKey;
-  const restartRef = useRef(test.restart);
-  restartRef.current = test.restart;
+  const statusRef = useRef(test.status);
+  statusRef.current = test.status;
+
+  // The keyboard slides up on the first keystroke of a run and hides on reset.
+  useEffect(() => {
+    if (test.status === "running") setKbVisible(true);
+    if (test.status === "idle") {
+      setKbVisible(false);
+      setRecent([]);
+    }
+  }, [test.status]);
+
+  const pressVisual = useCallback((code: string, down: boolean) => {
+    setPressed((prev) => {
+      const next = new Set(prev);
+      if (down) next.add(code);
+      else next.delete(code);
+      return next;
+    });
+  }, []);
+
+  const pushRecent = useCallback((label: string) => {
+    setRecent((prev) => {
+      if (prev[prev.length - 1] === label) return prev;
+      return [...prev.slice(-5), label];
+    });
+  }, []);
+
+  const playFor = useCallback((key: string) => {
+    if (key === " " || key === "Backspace" || key === "Enter") keyThock();
+    else keyClick();
+  }, []);
+
+  const doRestart = useCallback(() => {
+    test.restart();
+  }, [test]);
+
+  /** Single routing point for physical and on-screen key presses. */
+  const routeKey = useCallback(
+    (key: string) => {
+      if (key === "Tab") {
+        doRestart();
+        return;
+      }
+      if (statusRef.current === "finished") {
+        if (key === "Enter") doRestart();
+        return;
+      }
+      test.handleKey(key);
+    },
+    [doRestart, test]
+  );
+  const routeRef = useRef(routeKey);
+  routeRef.current = routeKey;
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "Tab") {
-        e.preventDefault();
-        if (phaseRef.current === "active") restartRef.current();
-        return;
+      if (document.activeElement instanceof HTMLButtonElement) {
+        document.activeElement.blur();
       }
+      pressVisual(e.code, true);
+      if (e.key === "Tab") e.preventDefault();
       if (phaseRef.current === "menu") {
+        // First key only opens the test; it is not typed.
+        pushRecent(pillLabel(e.code, e.key));
+        playFor(e.key);
         setPhase("active");
         return;
       }
       if (e.key === " ") e.preventDefault();
-      if (!e.repeat) keyRef.current(e.key);
+      if (!e.repeat) {
+        pushRecent(pillLabel(e.code, e.key));
+        playFor(e.key);
+        routeRef.current(e.key);
+      }
     };
+    const up = (e: KeyboardEvent) => pressVisual(e.code, false);
+    const blur = () => setPressed(new Set());
     window.addEventListener("keydown", down);
-    return () => window.removeEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
+    };
+  }, [pressVisual, pushRecent, playFor]);
+
+  const onKbPress = useCallback(
+    (code: string, action: string | undefined, down: boolean) => {
+      pressVisual(code, down);
+      if (!down) return;
+      pushRecent(pillLabel(code, action ?? code));
+      if (action === undefined) return; // pure modifier key
+      if (phaseRef.current === "menu") {
+        setPhase("active");
+        return;
+      }
+      playFor(action);
+      routeRef.current(action);
+    },
+    [pressVisual, pushRecent, playFor]
+  );
+
+  const toggleMute = useCallback(() => {
+    setMutedState((m) => {
+      setMuted(!m);
+      return !m;
+    });
   }, []);
 
   const startTest = () => setPhase("active");
@@ -52,7 +146,7 @@ export default function App() {
       <div className="cave-grain" />
       <div className="cave-vignette" />
 
-      <main className="flex-1 flex flex-col w-full max-w-5xl mx-auto px-6">
+      <main className="flex-1 flex flex-col w-full max-w-5xl mx-auto px-4 sm:px-6">
         <AnimatePresence mode="wait">
           {phase === "menu" ? (
             <motion.div
@@ -77,17 +171,19 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="flex-1 flex flex-col py-8"
+              className="flex-1 flex flex-col py-6 sm:py-8"
             >
               <TopBar
                 mode={test.mode}
                 timeLeft={test.timeLeft}
                 wpm={live.wpm}
                 acc={live.acc}
+                muted={muted}
+                onToggleMute={toggleMute}
                 onRestart={test.restart}
                 onExit={exitToMenu}
               />
-              <div className="flex-1 flex flex-col justify-center py-10">
+              <div className="flex-1 flex flex-col justify-center py-8">
                 {test.status !== "finished" ? (
                   <TypingArea
                     words={test.words}
@@ -112,7 +208,13 @@ export default function App() {
                   )
                 )}
               </div>
-              <p className="mc-kb-hint text-center pb-4">
+              <Keyboard
+                visible={kbVisible}
+                pressed={pressed}
+                recent={recent}
+                onPress={onKbPress}
+              />
+              <p className="mc-kb-hint text-center pt-4">
                 TAB TO RESTART
               </p>
             </motion.div>

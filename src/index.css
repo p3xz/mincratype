@@ -335,3 +335,20 @@ body {
 .animate-pop-in {
   animation: pop-in 350ms ease-out both;
 }
+
+/* small screens: shrink the block keyboard so it stays tappable */
+@media (max-width: 640px) {
+  .mc-frame {
+    padding: 8px;
+  }
+  .mc-key {
+    min-height: 42px;
+    gap: 2px;
+  }
+  .mc-key .k-label {
+    font-size: 7px;
+  }
+  .mc-key .k-sub {
+    font-size: 6px;
+  }
+}

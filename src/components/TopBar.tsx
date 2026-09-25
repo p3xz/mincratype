@@ -5,11 +5,22 @@ interface Props {
   timeLeft: number;
   wpm: number;
   acc: number;
+  muted: boolean;
+  onToggleMute: () => void;
   onRestart: () => void;
   onExit: () => void;
 }
 
-export default function TopBar({ mode, timeLeft, wpm, acc, onRestart, onExit }: Props) {
+export default function TopBar({
+  mode,
+  timeLeft,
+  wpm,
+  acc,
+  muted,
+  onToggleMute,
+  onRestart,
+  onExit,
+}: Props) {
   const pct = Math.max(0, Math.min(100, (timeLeft / mode) * 100));
   return (
     <div className="w-full">
@@ -31,6 +42,13 @@ export default function TopBar({ mode, timeLeft, wpm, acc, onRestart, onExit }: 
             <span className="text-stone-200 font-bold">{Math.round(acc)}%</span> acc
           </span>
         </div>
+        <button
+          onClick={onToggleMute}
+          className="mc-btn mc-btn-sm"
+          title="Toggle sound"
+        >
+          {muted ? "MUTE" : "SND"}
+        </button>
         <button onClick={onRestart} className="mc-btn mc-btn-sm" title="Restart (Tab)">
           RETRY
         </button>
