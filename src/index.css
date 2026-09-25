@@ -1,0 +1,337 @@
+@import "tailwindcss";
+
+@theme {
+  --font-pixel: "Press Start 2P", "Courier New", monospace;
+  --font-type: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-cave-950: #0d0b09;
+  --color-cave-900: #14110c;
+  --color-cave-850: #181410;
+  --color-cave-800: #1f1a14;
+  --color-cave-700: #2b241c;
+
+  --color-grass-300: #b5e48c;
+  --color-grass-400: #9ccc65;
+  --color-grass-500: #7cb342;
+  --color-grass-600: #639234;
+  --color-grass-700: #4a7023;
+
+  --color-xp-300: #c6ff7a;
+  --color-xp-400: #a4ff4f;
+  --color-xp-500: #7efc20;
+
+  --color-dirt-500: #8a5a33;
+  --color-dirt-700: #5d3b20;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #0d0b09;
+  color: #e8e4da;
+  font-family: var(--font-type);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- cave backdrop: grain + vignette ---------- */
+.cave-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(124, 179, 66, 0.06), transparent 60%),
+    radial-gradient(900px 600px at 85% 110%, rgba(124, 179, 66, 0.04), transparent 60%),
+    #0d0b09;
+}
+.cave-grain {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+.cave-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+/* ---------- blocky logo ---------- */
+.mc-logo {
+  font-family: var(--font-pixel);
+  color: #f4f1e8;
+  text-shadow:
+    0 4px 0 #3a3a3a,
+    4px 0 0 #3a3a3a,
+    4px 4px 0 #101010,
+    0 10px 28px rgba(0, 0, 0, 0.65);
+  letter-spacing: 0.04em;
+}
+.mc-logo .logo-accent {
+  color: var(--color-grass-400);
+  text-shadow:
+    0 4px 0 #2c4a15,
+    4px 0 0 #2c4a15,
+    4px 4px 0 #101010,
+    0 0 26px rgba(124, 179, 66, 0.45);
+}
+
+/* ---------- minecraft buttons ---------- */
+.mc-btn {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  line-height: 1.4;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
+  background: linear-gradient(#ababab, #828282 45%, #6f6f6f);
+  border: 2px solid #141414;
+  padding: 13px 22px;
+  cursor: pointer;
+  user-select: none;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.35),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.4),
+    0 4px 0 #0b0b0b;
+  transition: transform 70ms ease, box-shadow 70ms ease, filter 120ms ease;
+}
+.mc-btn:hover {
+  filter: brightness(1.08);
+}
+.mc-btn:active {
+  transform: translateY(4px);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.2),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.45),
+    0 0 0 #0b0b0b;
+}
+.mc-btn-primary {
+  background: linear-gradient(#93d653, #6da33a 45%, #557f2c);
+}
+.mc-btn-sm {
+  font-size: 9px;
+  padding: 10px 14px;
+}
+
+/* ---------- XP bar (timer / progress) ---------- */
+.xp-bar {
+  height: 14px;
+  border: 2px solid #0b0b0b;
+  background: #171512;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+.xp-fill {
+  height: 100%;
+  background: linear-gradient(#c6ff7a, #7efc20 55%, #57b312);
+  position: relative;
+  transition: width 200ms linear;
+}
+.xp-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 9px,
+    rgba(0, 0, 0, 0.38) 9px 11px
+  );
+}
+
+/* ---------- typing text ---------- */
+.type-word {
+  display: inline-block;
+  margin-right: 0.55em;
+  padding: 0 0.06em;
+  border-radius: 3px;
+}
+.type-word-active {
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: inset 0 -2px 0 rgba(124, 179, 66, 0.55);
+}
+.ch-untyped { color: #6e6a61; }
+.ch-ok { color: #b9f27e; }
+.ch-bad { color: #ff6b5e; }
+.ch-extra {
+  color: #c22f22;
+  background: rgba(194, 47, 34, 0.16);
+  border-radius: 2px;
+}
+
+/* ---------- minecraft keyboard ---------- */
+.mc-kb-hint {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: #8f8a7d;
+  text-shadow: 1px 1px 0 #000;
+  letter-spacing: 0.08em;
+}
+
+.mc-frame {
+  border: 3px solid #0e0c0a;
+  border-radius: 4px;
+  background-color: #33261a;
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.4) 0 3px,
+      transparent 3px 48px
+    ),
+    repeating-conic-gradient(
+      rgba(0, 0, 0, 0.13) 0% 25%,
+      rgba(255, 255, 255, 0.045) 0% 50%
+    );
+  background-size: auto, 12px 12px;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.07),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.55),
+    0 14px 44px rgba(0, 0, 0, 0.6);
+  padding: 12px;
+}
+
+.mc-key {
+  --key-base: #8f8f8f;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 52px;
+  border: 2px solid #141210;
+  border-radius: 2px;
+  background-color: var(--key-base);
+  background-image: repeating-conic-gradient(
+    rgba(0, 0, 0, 0.075) 0% 25%,
+    rgba(255, 255, 255, 0.06) 0% 50%
+  );
+  background-size: 9px 9px;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.22),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.38),
+    0 4px 0 #0a0908;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 55ms ease, box-shadow 55ms ease;
+}
+.mc-key[data-var="1"] { --key-base: #878787; }
+.mc-key[data-var="2"] { --key-base: #979797; }
+
+.mc-key[data-tone="dark"] { --key-base: #55534f; }
+.mc-key[data-tone="tnt"] { --key-base: #a83a2e; }
+.mc-key[data-tone="grass"] { --key-base: #5f9433; }
+.mc-key[data-tone="grassblock"] {
+  background-color: #7a5230;
+  background-image:
+    linear-gradient(
+      to bottom,
+      #7cc24e 0 30%,
+      #5f9433 30% 35%,
+      transparent 35%
+    ),
+    repeating-conic-gradient(
+      rgba(0, 0, 0, 0.1) 0% 25%,
+      rgba(255, 255, 255, 0.05) 0% 50%
+    );
+  background-size: auto, 9px 9px;
+}
+
+.mc-key .k-label {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  line-height: 1;
+  color: #faf7ee;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.mc-key .k-sub {
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  line-height: 1;
+  color: #d6d0bf;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+}
+
+.mc-key[data-pressed="true"] {
+  transform: translateY(4px);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.1),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.5),
+    0 0 0 #0a0908,
+    0 0 16px rgba(126, 252, 32, 0.55);
+}
+.mc-key[data-pressed="true"] .k-label {
+  color: #d9ffb0;
+}
+
+/* ---------- pressed-key pills: inventory slots ---------- */
+.mc-slot {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  line-height: 1;
+  color: #ece8db;
+  text-shadow: 1px 1px 0 #000;
+  background: rgba(12, 12, 12, 0.62);
+  border: 2px solid;
+  border-color: #8b8b8b #373737 #373737 #8b8b8b;
+  padding: 7px 9px;
+  white-space: nowrap;
+}
+
+/* ---------- pixel panel ---------- */
+.mc-panel {
+  background: rgba(20, 17, 13, 0.92);
+  border: 2px solid #0e0c0a;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.06),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.5),
+    0 10px 34px rgba(0, 0, 0, 0.5);
+}
+
+.pixel-text {
+  font-family: var(--font-pixel);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* caret */
+.type-caret {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  border-radius: 1px;
+  background: var(--color-xp-500);
+  box-shadow: 0 0 10px rgba(126, 252, 32, 0.8);
+  pointer-events: none;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float-slow {
+  animation: float-slow 5s ease-in-out infinite;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop-in {
+  animation: pop-in 350ms ease-out both;
+}
