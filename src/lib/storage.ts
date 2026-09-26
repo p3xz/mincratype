@@ -26,6 +26,9 @@ export function getAllBests(): Record<TestMode, PersonalBest | null> {
     30: getBest(30),
     60: getBest(60),
     120: getBest(120),
+    w25: getBest("w25"),
+    w50: getBest("w50"),
+    w100: getBest("w100"),
   };
 }
 

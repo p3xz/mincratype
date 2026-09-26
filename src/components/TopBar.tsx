@@ -1,3 +1,4 @@
+import { isWordMode, wordCountOf } from "../hooks/useTypingTest";
 import type { TestMode } from "../hooks/useTypingTest";
 
 interface Props {
@@ -21,7 +22,9 @@ export default function TopBar({
   onRestart,
   onExit,
 }: Props) {
-  const pct = Math.max(0, Math.min(100, (timeLeft / mode) * 100));
+  const wm = isWordMode(mode);
+  const total = wm ? wordCountOf(mode)! : mode;
+  const pct = Math.max(0, Math.min(100, (timeLeft / total) * 100));
   return (
     <div className="w-full">
       <div className="flex items-center gap-4 mb-3">
@@ -33,7 +36,8 @@ export default function TopBar({
         </div>
         <div className="flex items-center gap-4 font-type text-sm">
           <span className="pixel-text text-[10px] text-xp-400">
-            {Math.ceil(timeLeft)}s
+            {Math.ceil(timeLeft)}
+            {wm ? "w" : "s"}
           </span>
           <span className="text-stone-400">
             <span className="text-stone-200 font-bold">{Math.round(wpm)}</span> wpm

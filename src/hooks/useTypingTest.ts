@@ -2,8 +2,32 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { WORDS } from "../data/words";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
 
-export type TestMode = 15 | 30 | 60 | 120;
+export type TestMode = 15 | 30 | 60 | 120 | "w25" | "w50" | "w100";
 export type TestStatus = "idle" | "running" | "finished";
+
+export type WordMode = Extract<TestMode, string>;
+
+/** Type guard: true for word-count modes like "w25". */
+export function isWordMode(m: TestMode): m is WordMode {
+  return typeof m === "string";
+}
+
+/** Number of words for a word-count mode, or null for timer modes. */
+export function wordCountOf(m: TestMode): number | null {
+  return isWordMode(m) ? parseInt(m.slice(1), 10) : null;
+}
+
+/** Human label for a mode: "25 words" or "30s". */
+export function modeLabel(m: TestMode): string {
+  return isWordMode(m) ? `${wordCountOf(m)} words` : `${m}s`;
+}
+
+/** Words generated per run: the fixed count in word modes. */
+const wordTarget = (m: TestMode): number => wordCountOf(m) ?? INITIAL_WORDS;
+
+/** Initial HUD value: words remaining in word modes, seconds in timer modes. */
+const initialTimeLeft = (m: TestMode): number =>
+  isWordMode(m) ? wordCountOf(m)! : m;
 
 export interface KeyEntry {
   ch: string;
@@ -39,11 +63,17 @@ function randomWords(n: number): string[] {
 
 export function useTypingTest(initialMode: TestMode = 30) {
   const [mode, setMode] = useState<TestMode>(initialMode);
-  const [words, setWords] = useState<string[]>(() => randomWords(INITIAL_WORDS));
-  const [typed, setTyped] = useState<string[]>(() => Array(INITIAL_WORDS).fill(""));
+  const [words, setWords] = useState<string[]>(() =>
+    randomWords(wordTarget(initialMode))
+  );
+  const [typed, setTyped] = useState<string[]>(() =>
+    Array(wordTarget(initialMode)).fill("")
+  );
   const [wordIdx, setWordIdx] = useState(0);
   const [status, setStatus] = useState<TestStatus>("idle");
-  const [timeLeft, setTimeLeft] = useState<number>(initialMode);
+  const [timeLeft, setTimeLeft] = useState<number>(() =>
+    initialTimeLeft(initialMode)
+  );
   const [result, setResult] = useState<TestResult | null>(null);
 
   const entriesRef = useRef<KeyEntry[]>([]);
@@ -70,7 +100,14 @@ export function useTypingTest(initialMode: TestMode = 30) {
     const entries = entriesRef.current;
     const correct = entries.reduce((a, e) => a + (e.correct ? 1 : 0), 0);
     const total = entries.length;
-    const minutes = modeRef.current / 60;
+    const m = modeRef.current;
+    const elapsedSec =
+      startRef.current !== null ? (Date.now() - startRef.current) / 1000 : 0;
+    // Word modes score over the actual elapsed time; timer modes over the mode.
+    const minutes = isWordMode(m)
+      ? Math.max(elapsedSec / 60, 1 / 600)
+      : m / 60;
+    const durationSec = isWordMode(m) ? elapsedSec : m;
 
     let correctLetters = 0;
     let incorrectLetters = 0;
@@ -108,7 +145,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
       incorrectChars: incorrectLetters + incorrectSpaces,
       extraChars: extra,
       missedChars: missed,
-      durationSec: modeRef.current,
+      durationSec,
     });
     setStatus("finished");
     setTimeLeft(0);
@@ -132,9 +169,12 @@ export function useTypingTest(initialMode: TestMode = 30) {
         sr.count = 0;
         sr.whole++;
       }
-      const left = Math.max(0, modeRef.current - elapsed);
-      setTimeLeft(left);
-      if (left <= 0) finishRef.current();
+      // Word modes end on the final word, not on a timer.
+      if (!isWordMode(modeRef.current)) {
+        const left = Math.max(0, modeRef.current - elapsed);
+        setTimeLeft(left);
+        if (left <= 0) finishRef.current();
+      }
     }, 200);
   }, []);
 
@@ -163,14 +203,23 @@ export function useTypingTest(initialMode: TestMode = 30) {
         const expected = s.words[s.wordIdx];
         entriesRef.current.push({ ch: " ", correct: t === expected, extra: false });
         secRef.current.count++;
-        if (s.wordIdx + 1 + EXTEND_AT >= s.words.length) {
+        const nextIdx = s.wordIdx + 1;
+        const wm = isWordMode(modeRef.current);
+        if (!wm && nextIdx + EXTEND_AT >= s.words.length) {
           const nw = [...s.words, ...randomWords(EXTEND_BY)];
           const nt = [...s.typed];
           while (nt.length < nw.length) nt.push("");
           setWords(nw);
           setTyped(nt);
         }
-        setWordIdx(s.wordIdx + 1);
+        setWordIdx(nextIdx);
+        if (wm) {
+          setTimeLeft(s.words.length - nextIdx);
+          if (nextIdx >= s.words.length) {
+            finishRef.current();
+            return;
+          }
+        }
         return;
       }
 
@@ -196,12 +245,12 @@ export function useTypingTest(initialMode: TestMode = 30) {
     startRef.current = null;
     entriesRef.current = [];
     secRef.current = { whole: 0, count: 0, samples: [] };
-    const w = randomWords(INITIAL_WORDS);
+    const w = randomWords(wordTarget(modeRef.current));
     setWords(w);
     setTyped(Array(w.length).fill(""));
     setWordIdx(0);
     setStatus("idle");
-    setTimeLeft(modeRef.current);
+    setTimeLeft(initialTimeLeft(modeRef.current));
     setResult(null);
   }, [stopTimer]);
 
