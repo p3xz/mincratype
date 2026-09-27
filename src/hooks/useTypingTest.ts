@@ -1,33 +1,55 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { WORDS } from "../data/words";
+import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
 
-export type TestMode = 15 | 30 | 60 | 120 | "w25" | "w50" | "w100";
+export type TestMode = 15 | 30 | 60 | 120 | "w25" | "w50" | "w100" | "quote";
 export type TestStatus = "idle" | "running" | "finished";
 
 export type WordMode = Extract<TestMode, string>;
 
 /** Type guard: true for word-count modes like "w25". */
 export function isWordMode(m: TestMode): m is WordMode {
-  return typeof m === "string";
+  return typeof m === "string" && m !== "quote";
 }
 
-/** Number of words for a word-count mode, or null for timer modes. */
+/** Type guard: true for quote mode. */
+export function isQuoteMode(m: TestMode): m is "quote" {
+  return m === "quote";
+}
+
+/** Number of words for a word-count mode, or null for timer and quote modes. */
 export function wordCountOf(m: TestMode): number | null {
   return isWordMode(m) ? parseInt(m.slice(1), 10) : null;
 }
 
-/** Human label for a mode: "25 words" or "30s". */
+/** Human label for a mode: "25 words", "30s", or "quote". */
 export function modeLabel(m: TestMode): string {
+  if (isQuoteMode(m)) return "quote";
   return isWordMode(m) ? `${wordCountOf(m)} words` : `${m}s`;
+}
+
+/** Compact label for mode buttons: "25w", "30s", or "quote". */
+export function modeShort(m: TestMode): string {
+  if (isQuoteMode(m)) return "quote";
+  return isWordMode(m) ? `${wordCountOf(m)}w` : `${m}s`;
 }
 
 /** Words generated per run: the fixed count in word modes. */
 const wordTarget = (m: TestMode): number => wordCountOf(m) ?? INITIAL_WORDS;
 
-/** Initial HUD value: words remaining in word modes, seconds in timer modes. */
-const initialTimeLeft = (m: TestMode): number =>
-  isWordMode(m) ? wordCountOf(m)! : m;
+/** Word list for a run: a random quote in quote mode, random words otherwise. */
+function genWords(m: TestMode): { words: string[]; author: string | null } {
+  if (isQuoteMode(m)) {
+    const q = randomQuote();
+    return { words: q.text.split(" "), author: q.author };
+  }
+  return { words: randomWords(wordTarget(m)), author: null };
+}
+
+/** Initial HUD value: words remaining in word and quote modes, seconds in timer modes. */
+const initialTimeLeft = (m: TestMode, words: string[]): number =>
+  isWordMode(m) || isQuoteMode(m) ? words.length : m;
 
 export interface KeyEntry {
   ch: string;
@@ -63,16 +85,16 @@ function randomWords(n: number): string[] {
 
 export function useTypingTest(initialMode: TestMode = 30) {
   const [mode, setMode] = useState<TestMode>(initialMode);
-  const [words, setWords] = useState<string[]>(() =>
-    randomWords(wordTarget(initialMode))
-  );
+  const [initial] = useState(() => genWords(initialMode));
+  const [words, setWords] = useState<string[]>(initial.words);
+  const [quoteAuthor, setQuoteAuthor] = useState<string | null>(initial.author);
   const [typed, setTyped] = useState<string[]>(() =>
-    Array(wordTarget(initialMode)).fill("")
+    Array(initial.words.length).fill("")
   );
   const [wordIdx, setWordIdx] = useState(0);
   const [status, setStatus] = useState<TestStatus>("idle");
   const [timeLeft, setTimeLeft] = useState<number>(() =>
-    initialTimeLeft(initialMode)
+    initialTimeLeft(initialMode, initial.words)
   );
   const [result, setResult] = useState<TestResult | null>(null);
 
@@ -103,11 +125,10 @@ export function useTypingTest(initialMode: TestMode = 30) {
     const m = modeRef.current;
     const elapsedSec =
       startRef.current !== null ? (Date.now() - startRef.current) / 1000 : 0;
-    // Word modes score over the actual elapsed time; timer modes over the mode.
-    const minutes = isWordMode(m)
-      ? Math.max(elapsedSec / 60, 1 / 600)
-      : m / 60;
-    const durationSec = isWordMode(m) ? elapsedSec : m;
+    // Word and quote modes score over the actual elapsed time; timer modes over the mode.
+    const untimed = isWordMode(m) || isQuoteMode(m);
+    const minutes = untimed ? Math.max(elapsedSec / 60, 1 / 600) : m / 60;
+    const durationSec = untimed ? elapsedSec : m;
 
     let correctLetters = 0;
     let incorrectLetters = 0;
@@ -169,8 +190,8 @@ export function useTypingTest(initialMode: TestMode = 30) {
         sr.count = 0;
         sr.whole++;
       }
-      // Word modes end on the final word, not on a timer.
-      if (!isWordMode(modeRef.current)) {
+      // Word and quote modes end on the final word, not on a timer.
+      if (!isWordMode(modeRef.current) && !isQuoteMode(modeRef.current)) {
         const left = Math.max(0, modeRef.current - elapsed);
         setTimeLeft(left);
         if (left <= 0) finishRef.current();
@@ -204,8 +225,9 @@ export function useTypingTest(initialMode: TestMode = 30) {
         entriesRef.current.push({ ch: " ", correct: t === expected, extra: false });
         secRef.current.count++;
         const nextIdx = s.wordIdx + 1;
-        const wm = isWordMode(modeRef.current);
-        if (!wm && nextIdx + EXTEND_AT >= s.words.length) {
+        // Word and quote modes end on the final word, not on a timer.
+        const endsByWords = isWordMode(modeRef.current) || isQuoteMode(modeRef.current);
+        if (!endsByWords && nextIdx + EXTEND_AT >= s.words.length) {
           const nw = [...s.words, ...randomWords(EXTEND_BY)];
           const nt = [...s.typed];
           while (nt.length < nw.length) nt.push("");
@@ -213,7 +235,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
           setTyped(nt);
         }
         setWordIdx(nextIdx);
-        if (wm) {
+        if (endsByWords) {
           setTimeLeft(s.words.length - nextIdx);
           if (nextIdx >= s.words.length) {
             finishRef.current();
@@ -245,12 +267,13 @@ export function useTypingTest(initialMode: TestMode = 30) {
     startRef.current = null;
     entriesRef.current = [];
     secRef.current = { whole: 0, count: 0, samples: [] };
-    const w = randomWords(wordTarget(modeRef.current));
-    setWords(w);
-    setTyped(Array(w.length).fill(""));
+    const g = genWords(modeRef.current);
+    setWords(g.words);
+    setQuoteAuthor(g.author);
+    setTyped(Array(g.words.length).fill(""));
     setWordIdx(0);
     setStatus("idle");
-    setTimeLeft(initialTimeLeft(modeRef.current));
+    setTimeLeft(initialTimeLeft(modeRef.current, g.words));
     setResult(null);
   }, [stopTimer]);
 
@@ -280,6 +303,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
   return {
     mode,
     words,
+    quoteAuthor,
     typed,
     wordIdx,
     status,

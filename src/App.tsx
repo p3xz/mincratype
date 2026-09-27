@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTypingTest } from "./hooks/useTypingTest";
+import { useTypingTest, isQuoteMode, isWordMode } from "./hooks/useTypingTest";
 import { getAllBests, getBest, saveBest } from "./lib/storage";
 import { finishChime, isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
@@ -186,6 +186,11 @@ export default function App() {
             >
               <TopBar
                 mode={test.mode}
+                total={
+                  isWordMode(test.mode) || isQuoteMode(test.mode)
+                    ? test.words.length
+                    : test.mode
+                }
                 timeLeft={test.timeLeft}
                 wpm={live.wpm}
                 acc={live.acc}
@@ -195,6 +200,11 @@ export default function App() {
                 onExit={exitToMenu}
               />
               <div className="flex-1 flex flex-col justify-center py-8">
+                {test.quoteAuthor && test.status !== "finished" && (
+                  <p className="pixel-text text-[10px] text-stone-500 text-center mb-4">
+                    {test.quoteAuthor.toUpperCase()}
+                  </p>
+                )}
                 {test.status !== "finished" ? (
                   <TypingArea
                     words={test.words}

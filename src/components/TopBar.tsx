@@ -1,8 +1,10 @@
-import { isWordMode, wordCountOf } from "../hooks/useTypingTest";
+import { isQuoteMode, isWordMode } from "../hooks/useTypingTest";
 import type { TestMode } from "../hooks/useTypingTest";
 
 interface Props {
   mode: TestMode;
+  /** Denominator for the XP progress bar: seconds in timer modes, word count otherwise. */
+  total: number;
   timeLeft: number;
   wpm: number;
   acc: number;
@@ -14,6 +16,7 @@ interface Props {
 
 export default function TopBar({
   mode,
+  total,
   timeLeft,
   wpm,
   acc,
@@ -22,8 +25,7 @@ export default function TopBar({
   onRestart,
   onExit,
 }: Props) {
-  const wm = isWordMode(mode);
-  const total = wm ? wordCountOf(mode)! : mode;
+  const countMode = isWordMode(mode) || isQuoteMode(mode);
   const pct = Math.max(0, Math.min(100, (timeLeft / total) * 100));
   return (
     <div className="w-full">
@@ -37,7 +39,7 @@ export default function TopBar({
         <div className="flex items-center gap-4 font-type text-sm">
           <span className="pixel-text text-[10px] text-xp-400">
             {Math.ceil(timeLeft)}
-            {wm ? "w" : "s"}
+            {countMode ? "w" : "s"}
           </span>
           <span className="text-stone-400">
             <span className="text-stone-200 font-bold">{Math.round(wpm)}</span> wpm

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { isWordMode, wordCountOf } from "../hooks/useTypingTest";
+import { modeShort } from "../hooks/useTypingTest";
 import type { TestMode } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
 
@@ -12,6 +12,7 @@ interface Props {
 
 const TIME_MODES: TestMode[] = [15, 30, 60, 120];
 const WORD_MODES: TestMode[] = ["w25", "w50", "w100"];
+const QUOTE_MODES: TestMode[] = ["quote"];
 
 function ModeButtons({
   modes,
@@ -32,7 +33,7 @@ function ModeButtons({
             onClick={() => onMode(m)}
             className={`mc-btn mc-btn-sm ${active === m ? "mc-btn-primary" : ""}`}
           >
-            {isWordMode(m) ? `${wordCountOf(m)}w` : `${m}s`}
+            {modeShort(m)}
           </button>
           <span className="pixel-text text-[8px] text-stone-500">
             {bests[m] ? `BEST ${Math.round(bests[m]!.wpm)}` : "NO BEST"}
@@ -58,8 +59,8 @@ export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
         MINCRA<span className="logo-accent">TYPE</span>
       </h1>
       <p className="mt-6 max-w-md text-sm text-stone-400 font-type leading-relaxed">
-        How fast can you mine those words? Pick a timer or a word count, then
-        type like the cave is collapsing.
+        How fast can you mine those words? Pick a timer, a word count, or a
+        quote, then type like the cave is collapsing.
       </p>
 
       <div className="mt-10 flex flex-col items-center gap-6">
@@ -74,6 +75,12 @@ export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
             WORDS
           </p>
           <ModeButtons modes={WORD_MODES} active={mode} onMode={onMode} bests={bests} />
+        </div>
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            QUOTE
+          </p>
+          <ModeButtons modes={QUOTE_MODES} active={mode} onMode={onMode} bests={bests} />
         </div>
       </div>
 
