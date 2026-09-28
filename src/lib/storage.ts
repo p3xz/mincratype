@@ -30,6 +30,7 @@ export function getAllBests(): Record<TestMode, PersonalBest | null> {
     w50: getBest("w50"),
     w100: getBest("w100"),
     quote: getBest("quote"),
+    zen: getBest("zen"),
   };
 }
 

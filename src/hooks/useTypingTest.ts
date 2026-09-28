@@ -3,14 +3,14 @@ import { WORDS } from "../data/words";
 import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
 
-export type TestMode = 15 | 30 | 60 | 120 | "w25" | "w50" | "w100" | "quote";
+export type TestMode = 15 | 30 | 60 | 120 | "w25" | "w50" | "w100" | "quote" | "zen";
 export type TestStatus = "idle" | "running" | "finished";
 
-export type WordMode = Extract<TestMode, string>;
+export type WordMode = "w25" | "w50" | "w100";
 
 /** Type guard: true for word-count modes like "w25". */
 export function isWordMode(m: TestMode): m is WordMode {
-  return typeof m === "string" && m !== "quote";
+  return m === "w25" || m === "w50" || m === "w100";
 }
 
 /** Type guard: true for quote mode. */
@@ -18,20 +18,25 @@ export function isQuoteMode(m: TestMode): m is "quote" {
   return m === "quote";
 }
 
+/** Type guard: true for zen mode. */
+export function isZenMode(m: TestMode): m is "zen" {
+  return m === "zen";
+}
+
 /** Number of words for a word-count mode, or null for timer and quote modes. */
 export function wordCountOf(m: TestMode): number | null {
   return isWordMode(m) ? parseInt(m.slice(1), 10) : null;
 }
 
-/** Human label for a mode: "25 words", "30s", or "quote". */
+/** Human label for a mode: "25 words", "30s", "quote", or "zen". */
 export function modeLabel(m: TestMode): string {
-  if (isQuoteMode(m)) return "quote";
+  if (isQuoteMode(m) || isZenMode(m)) return m;
   return isWordMode(m) ? `${wordCountOf(m)} words` : `${m}s`;
 }
 
-/** Compact label for mode buttons: "25w", "30s", or "quote". */
+/** Compact label for mode buttons: "25w", "30s", "quote", or "zen". */
 export function modeShort(m: TestMode): string {
-  if (isQuoteMode(m)) return "quote";
+  if (isQuoteMode(m) || isZenMode(m)) return m;
   return isWordMode(m) ? `${wordCountOf(m)}w` : `${m}s`;
 }
 
@@ -47,9 +52,10 @@ function genWords(m: TestMode): { words: string[]; author: string | null } {
   return { words: randomWords(wordTarget(m)), author: null };
 }
 
-/** Initial HUD value: words remaining in word and quote modes, seconds in timer modes. */
+/** Initial HUD value: words remaining in word and quote modes, seconds in timer
+ *  modes, and 0 in zen mode where the clock counts up instead. */
 const initialTimeLeft = (m: TestMode, words: string[]): number =>
-  isWordMode(m) || isQuoteMode(m) ? words.length : m;
+  isZenMode(m) ? 0 : isWordMode(m) || isQuoteMode(m) ? words.length : m;
 
 export interface KeyEntry {
   ch: string;
@@ -125,8 +131,8 @@ export function useTypingTest(initialMode: TestMode = 30) {
     const m = modeRef.current;
     const elapsedSec =
       startRef.current !== null ? (Date.now() - startRef.current) / 1000 : 0;
-    // Word and quote modes score over the actual elapsed time; timer modes over the mode.
-    const untimed = isWordMode(m) || isQuoteMode(m);
+    // Word, quote, and zen modes score over the actual elapsed time; timer modes over the mode.
+    const untimed = isWordMode(m) || isQuoteMode(m) || isZenMode(m);
     const minutes = untimed ? Math.max(elapsedSec / 60, 1 / 600) : m / 60;
     const durationSec = untimed ? elapsedSec : m;
 
@@ -190,9 +196,13 @@ export function useTypingTest(initialMode: TestMode = 30) {
         sr.count = 0;
         sr.whole++;
       }
-      // Word and quote modes end on the final word, not on a timer.
-      if (!isWordMode(modeRef.current) && !isQuoteMode(modeRef.current)) {
-        const left = Math.max(0, modeRef.current - elapsed);
+      const m = modeRef.current;
+      if (isZenMode(m)) {
+        // Zen has no timer: the HUD clock counts up, the run never ends on its own.
+        setTimeLeft(elapsed);
+      } else if (!isWordMode(m) && !isQuoteMode(m)) {
+        // Word and quote modes end on the final word, not on a timer.
+        const left = Math.max(0, m - elapsed);
         setTimeLeft(left);
         if (left <= 0) finishRef.current();
       }
@@ -312,6 +322,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     handleKey,
     restart,
     changeMode,
+    finish,
     getLive,
   };
 }

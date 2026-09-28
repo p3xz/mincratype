@@ -1,4 +1,4 @@
-import { isQuoteMode, isWordMode } from "../hooks/useTypingTest";
+import { isQuoteMode, isWordMode, isZenMode } from "../hooks/useTypingTest";
 import type { TestMode } from "../hooks/useTypingTest";
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
   onToggleMute: () => void;
   onRestart: () => void;
   onExit: () => void;
+  onEnd: () => void;
 }
 
 export default function TopBar({
@@ -24,9 +25,13 @@ export default function TopBar({
   onToggleMute,
   onRestart,
   onExit,
+  onEnd,
 }: Props) {
+  const zen = isZenMode(mode);
   const countMode = isWordMode(mode) || isQuoteMode(mode);
-  const pct = Math.max(0, Math.min(100, (timeLeft / total) * 100));
+  const pct = zen
+    ? 100 // endless run, bar stays full
+    : Math.max(0, Math.min(100, (timeLeft / total) * 100));
   return (
     <div className="w-full">
       <div className="flex items-center gap-4 mb-3">
@@ -38,6 +43,7 @@ export default function TopBar({
         </div>
         <div className="flex items-center gap-4 font-type text-sm">
           <span className="pixel-text text-[10px] text-xp-400">
+            {zen && "ZEN "}
             {Math.ceil(timeLeft)}
             {countMode ? "w" : "s"}
           </span>
@@ -58,6 +64,11 @@ export default function TopBar({
         <button onClick={onRestart} className="mc-btn mc-btn-sm" title="Restart (Tab)">
           RETRY
         </button>
+        {zen && (
+          <button onClick={onEnd} className="mc-btn mc-btn-sm" title="End run, show stats (Enter)">
+            END
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTypingTest, isQuoteMode, isWordMode } from "./hooks/useTypingTest";
+import { useTypingTest, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
 import { getAllBests, getBest, saveBest } from "./lib/storage";
 import { finishChime, isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
@@ -77,6 +77,11 @@ export default function App() {
       }
       if (statusRef.current === "finished") {
         if (key === "Enter") doRestart();
+        return;
+      }
+      // Zen runs never end on their own: Enter finishes on demand.
+      if (key === "Enter" && isZenMode(test.mode)) {
+        test.finish();
         return;
       }
       test.handleKey(key);
@@ -187,9 +192,11 @@ export default function App() {
               <TopBar
                 mode={test.mode}
                 total={
-                  isWordMode(test.mode) || isQuoteMode(test.mode)
-                    ? test.words.length
-                    : test.mode
+                  isZenMode(test.mode)
+                    ? 1
+                    : isWordMode(test.mode) || isQuoteMode(test.mode)
+                      ? test.words.length
+                      : test.mode
                 }
                 timeLeft={test.timeLeft}
                 wpm={live.wpm}
@@ -198,6 +205,7 @@ export default function App() {
                 onToggleMute={toggleMute}
                 onRestart={test.restart}
                 onExit={exitToMenu}
+                onEnd={test.finish}
               />
               <div className="flex-1 flex flex-col justify-center py-8">
                 {test.quoteAuthor && test.status !== "finished" && (
@@ -230,7 +238,11 @@ export default function App() {
                 onPress={onKbPress}
               />
               {test.status !== "finished" && (
-                <p className="mc-kb-hint text-center pt-4">TAB TO RESTART</p>
+                <p className="mc-kb-hint text-center pt-4">
+                  {isZenMode(test.mode)
+                    ? "TAB TO RESTART - ENTER TO END"
+                    : "TAB TO RESTART"}
+                </p>
               )}
             </motion.div>
           )}

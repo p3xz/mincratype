@@ -5,7 +5,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 ## Test modes
 - [x] Word-count mode (25 / 50 / 100 words) alongside timer modes
 - [x] Quote mode with a pack of famous short quotes
-- [ ] Zen mode: no timer, endless words, stats on demand
+- [x] Zen mode: no timer, endless words, stats on demand
 - [ ] Custom timer input (any number of seconds)
 - [ ] Daily challenge: same seeded word list for everyone, once per day
 

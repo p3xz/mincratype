@@ -13,6 +13,7 @@ interface Props {
 const TIME_MODES: TestMode[] = [15, 30, 60, 120];
 const WORD_MODES: TestMode[] = ["w25", "w50", "w100"];
 const QUOTE_MODES: TestMode[] = ["quote"];
+const ZEN_MODES: TestMode[] = ["zen"];
 
 function ModeButtons({
   modes,
@@ -59,8 +60,8 @@ export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
         MINCRA<span className="logo-accent">TYPE</span>
       </h1>
       <p className="mt-6 max-w-md text-sm text-stone-400 font-type leading-relaxed">
-        How fast can you mine those words? Pick a timer, a word count, or a
-        quote, then type like the cave is collapsing.
+        How fast can you mine those words? Pick a timer, a word count, a
+        quote, or zen: no timer, endless words, stats whenever you want them.
       </p>
 
       <div className="mt-10 flex flex-col items-center gap-6">
@@ -81,6 +82,12 @@ export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
             QUOTE
           </p>
           <ModeButtons modes={QUOTE_MODES} active={mode} onMode={onMode} bests={bests} />
+        </div>
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            ZEN
+          </p>
+          <ModeButtons modes={ZEN_MODES} active={mode} onMode={onMode} bests={bests} />
         </div>
       </div>
 
