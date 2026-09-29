@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { modeShort } from "../hooks/useTypingTest";
 import type { TestMode } from "../hooks/useTypingTest";
@@ -14,6 +15,10 @@ const TIME_MODES: TestMode[] = [15, 30, 60, 120];
 const WORD_MODES: TestMode[] = ["w25", "w50", "w100"];
 const QUOTE_MODES: TestMode[] = ["quote"];
 const ZEN_MODES: TestMode[] = ["zen"];
+
+/** Smallest and largest custom timer the game allows, in seconds. */
+const CUSTOM_MIN = 5;
+const CUSTOM_MAX = 600;
 
 function ModeButtons({
   modes,
@@ -45,6 +50,47 @@ function ModeButtons({
   );
 }
 
+function CustomTimer({
+  active,
+  onMode,
+}: {
+  active: TestMode;
+  onMode: (m: TestMode) => void;
+}) {
+  const [value, setValue] = useState("");
+  const customActive =
+    typeof active === "number" && !TIME_MODES.includes(active);
+  const apply = () => {
+    const secs = Math.round(Number(value));
+    if (!Number.isFinite(secs) || secs <= 0) return;
+    onMode(Math.min(CUSTOM_MAX, Math.max(CUSTOM_MIN, secs)));
+    setValue("");
+  };
+  return (
+    <div className="mt-3 flex items-center justify-center gap-2">
+      <input
+        value={value}
+        onChange={(e) => setValue(e.target.value.replace(/\D/g, "").slice(0, 3))}
+        onKeyDown={(e) => {
+          // Keep keystrokes here: the app routes global keys into the test.
+          e.stopPropagation();
+          if (e.key === "Enter") apply();
+        }}
+        placeholder="secs"
+        inputMode="numeric"
+        aria-label="Custom timer seconds"
+        className="w-20 bg-cave-900 border border-stone-700 px-3 py-2 text-center font-type text-sm text-stone-200 placeholder:text-stone-600 outline-none focus:border-grass-500"
+      />
+      <button
+        onClick={apply}
+        className={`mc-btn mc-btn-sm ${customActive ? "mc-btn-primary" : ""}`}
+      >
+        {customActive ? modeShort(active) : "SET"}
+      </button>
+    </div>
+  );
+}
+
 export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
   return (
     <motion.div
@@ -70,6 +116,7 @@ export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
             TIMER
           </p>
           <ModeButtons modes={TIME_MODES} active={mode} onMode={onMode} bests={bests} />
+          <CustomTimer active={mode} onMode={onMode} />
         </div>
         <div>
           <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">

@@ -3,7 +3,10 @@ import { WORDS } from "../data/words";
 import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
 
-export type TestMode = 15 | 30 | 60 | 120 | "w25" | "w50" | "w100" | "quote" | "zen";
+/** Timer modes are plain seconds: 15/30/60/120 are the presets, and users can
+ *  also type a custom number of seconds. Everything that is not a word, quote,
+ *  or zen mode is treated as a timer mode. */
+export type TestMode = number | "w25" | "w50" | "w100" | "quote" | "zen";
 export type TestStatus = "idle" | "running" | "finished";
 
 export type WordMode = "w25" | "w50" | "w100";
