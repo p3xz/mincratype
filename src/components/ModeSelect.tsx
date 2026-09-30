@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { modeShort } from "../hooks/useTypingTest";
+import { dailyKey, modeShort } from "../hooks/useTypingTest";
 import type { TestMode } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
 
@@ -15,6 +15,7 @@ const TIME_MODES: TestMode[] = [15, 30, 60, 120];
 const WORD_MODES: TestMode[] = ["w25", "w50", "w100"];
 const QUOTE_MODES: TestMode[] = ["quote"];
 const ZEN_MODES: TestMode[] = ["zen"];
+const DAILY_MODES: TestMode[] = ["daily"];
 
 /** Smallest and largest custom timer the game allows, in seconds. */
 const CUSTOM_MIN = 5;
@@ -107,10 +108,20 @@ export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
       </h1>
       <p className="mt-6 max-w-md text-sm text-stone-400 font-type leading-relaxed">
         How fast can you mine those words? Pick a timer, a word count, a
-        quote, or zen: no timer, endless words, stats whenever you want them.
+        quote, zen, or the daily challenge: same 50 words for everyone,
+        new list every day.
       </p>
 
       <div className="mt-10 flex flex-col items-center gap-6">
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            DAILY CHALLENGE
+          </p>
+          <ModeButtons modes={DAILY_MODES} active={mode} onMode={onMode} bests={bests} />
+          <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
+            {dailyKey()} - same 50 words for everyone, new list every day.
+          </p>
+        </div>
         <div>
           <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
             TIMER

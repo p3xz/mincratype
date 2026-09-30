@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTypingTest, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
-import { getAllBests, getBest, saveBest } from "./lib/storage";
+import { useTypingTest, isDailyMode, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
+import { getAllBests, getBest, saveBest, getDailyBest, saveDailyBest } from "./lib/storage";
 import { finishChime, isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
 import ModeSelect from "./components/ModeSelect";
@@ -37,7 +37,12 @@ export default function App() {
   // On finish: record personal best, play the XP chime.
   useEffect(() => {
     if (test.status === "finished" && test.result) {
-      setIsNewBest(saveBest(test.result.mode, test.result.wpm, test.result.accuracy));
+      const daily = isDailyMode(test.result.mode);
+      setIsNewBest(
+        daily
+          ? saveDailyBest(test.result.wpm, test.result.accuracy)
+          : saveBest(test.result.mode, test.result.wpm, test.result.accuracy)
+      );
       setBests(getAllBests());
       finishChime();
     }
@@ -194,7 +199,7 @@ export default function App() {
                 total={
                   isZenMode(test.mode)
                     ? 1
-                    : isWordMode(test.mode) || isQuoteMode(test.mode)
+                    : isWordMode(test.mode) || isQuoteMode(test.mode) || isDailyMode(test.mode)
                       ? test.words.length
                       : test.mode
                 }
@@ -224,7 +229,11 @@ export default function App() {
                     <Results
                       result={test.result}
                       isNewBest={isNewBest}
-                      best={getBest(test.result.mode)}
+                      best={
+                        isDailyMode(test.result.mode)
+                          ? getDailyBest()
+                          : getBest(test.result.mode)
+                      }
                       onRetry={test.restart}
                       onMenu={exitToMenu}
                     />

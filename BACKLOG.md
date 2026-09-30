@@ -7,7 +7,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 - [x] Quote mode with a pack of famous short quotes
 - [x] Zen mode: no timer, endless words, stats on demand
 - [x] Custom timer input (any number of seconds)
-- [ ] Daily challenge: same seeded word list for everyone, once per day
+- [x] Daily challenge: same seeded word list for everyone, once per day
 
 ## Words and languages
 - [ ] Code word pack (keywords and symbols for programmers)
