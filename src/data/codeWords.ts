@@ -1,0 +1,30 @@
+// Code word pack for code mode: programmer keywords and symbols so typing
+// practice matches real code. Kept lowercase with only characters that are
+// typable on the blocky keyboard (letters, digits, common symbols).
+export const CODE_WORDS: string[] = [
+  "const", "let", "var", "function", "return", "async", "await", "class",
+  "import", "export", "default", "from", "new", "this", "if", "else",
+  "for", "while", "switch", "case", "break", "continue", "try", "catch",
+  "finally", "throw", "typeof", "instanceof", "null", "undefined", "true",
+  "false", "void", "delete", "yield", "static", "extends", "super",
+  "enum", "interface", "type", "implements", "private", "public",
+  "protected", "readonly", "abstract", "declare", "namespace", "module",
+  "require", "console", "log", "error", "warn", "debug", "assert",
+  "promise", "then", "reject", "resolve", "map", "filter", "reduce",
+  "find", "push", "pop", "shift", "splice", "slice", "join", "split",
+  "replace", "match", "test", "length", "index", "string", "number",
+  "boolean", "array", "object", "json", "parse", "stringify", "fetch",
+  "event", "listener", "state", "props", "ref", "hook", "effect",
+  "callback", "handler", "render", "mount", "unmount", "router",
+  "params", "query", "body", "header", "status", "response", "request",
+  "token", "auth", "session", "cookie", "store", "cache", "queue",
+  "stack", "tree", "graph", "node", "edge", "search", "sort", "merge",
+  "recursion", "loop", "iterate", "key", "value", "pair", "entry",
+  "tuple", "set", "weakmap", "proxy", "reflect", "generator", "iterator",
+  "defer", "throttle", "debounce", "memo", "lazy", "suspense",
+  "=>", "===", "!==", "==", "!=", "&&", "||", "++", "--", "+=",
+  "-=", "*=", "/=", "<=", ">=", "...", "**", "??", "?.", "??=",
+  "||=", "&&=", "<<", ">>", ">>>", "{}", "[]", "()", "${", ";",
+  ":", ",", ".", "!", "?", "~", "^", "&", "|", "%", "=", "+",
+  "-", "*", "/", "<", ">", "#", "@", "_", "$",
+];

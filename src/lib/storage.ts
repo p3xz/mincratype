@@ -33,6 +33,7 @@ export function getAllBests(): Record<TestMode, PersonalBest | null> {
     quote: getBest("quote"),
     zen: getBest("zen"),
     daily: getDailyBest(),
+    code: getBest("code"),
   };
 }
 

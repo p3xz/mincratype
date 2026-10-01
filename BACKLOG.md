@@ -10,7 +10,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 - [x] Daily challenge: same seeded word list for everyone, once per day
 
 ## Words and languages
-- [ ] Code word pack (keywords and symbols for programmers)
+- [x] Code word pack (keywords and symbols for programmers)
 - [ ] Additional language word lists (starting with Hindi transliteration pack)
 - [ ] Difficulty filter: short words only / long words only
 

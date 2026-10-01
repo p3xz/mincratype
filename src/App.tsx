@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTypingTest, isDailyMode, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
+import { useTypingTest, isCodeMode, isDailyMode, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
 import { getAllBests, getBest, saveBest, getDailyBest, saveDailyBest } from "./lib/storage";
 import { finishChime, isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
@@ -199,7 +199,7 @@ export default function App() {
                 total={
                   isZenMode(test.mode)
                     ? 1
-                    : isWordMode(test.mode) || isQuoteMode(test.mode) || isDailyMode(test.mode)
+                    : isWordMode(test.mode) || isQuoteMode(test.mode) || isDailyMode(test.mode) || isCodeMode(test.mode)
                       ? test.words.length
                       : test.mode
                 }
