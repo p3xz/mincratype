@@ -1,4 +1,4 @@
-import { isCodeMode, isDailyMode, isQuoteMode, isWordMode, isZenMode } from "../hooks/useTypingTest";
+import { isCodeMode, isDailyMode, isHindiMode, isQuoteMode, isWordMode, isZenMode } from "../hooks/useTypingTest";
 import type { TestMode } from "../hooks/useTypingTest";
 
 interface Props {
@@ -28,7 +28,7 @@ export default function TopBar({
   onEnd,
 }: Props) {
   const zen = isZenMode(mode);
-  const countMode = isWordMode(mode) || isQuoteMode(mode) || isDailyMode(mode) || isCodeMode(mode);
+  const countMode = isWordMode(mode) || isQuoteMode(mode) || isDailyMode(mode) || isCodeMode(mode) || isHindiMode(mode);
   const pct = zen
     ? 100 // endless run, bar stays full
     : Math.max(0, Math.min(100, (timeLeft / total) * 100));

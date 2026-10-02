@@ -34,6 +34,7 @@ export function getAllBests(): Record<TestMode, PersonalBest | null> {
     zen: getBest("zen"),
     daily: getDailyBest(),
     code: getBest("code"),
+    hindi: getBest("hindi"),
   };
 }
 

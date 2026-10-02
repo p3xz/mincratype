@@ -17,6 +17,7 @@ const QUOTE_MODES: TestMode[] = ["quote"];
 const ZEN_MODES: TestMode[] = ["zen"];
 const DAILY_MODES: TestMode[] = ["daily"];
 const CODE_MODES: TestMode[] = ["code"];
+const HINDI_MODES: TestMode[] = ["hindi"];
 
 /** Smallest and largest custom timer the game allows, in seconds. */
 const CUSTOM_MIN = 5;
@@ -109,7 +110,7 @@ export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
       </h1>
       <p className="mt-6 max-w-md text-sm text-stone-400 font-type leading-relaxed">
         How fast can you mine those words? Pick a timer, a word count, a
-        quote, code keywords, zen, or the daily challenge: same 50 words
+        quote, code keywords, hindi, zen, or the daily challenge: same 50 words
         for everyone, new list every day.
       </p>
 
@@ -149,6 +150,15 @@ export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
           <ModeButtons modes={CODE_MODES} active={mode} onMode={onMode} bests={bests} />
           <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
             50 programming keywords and symbols, like real code.
+          </p>
+        </div>
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            HINDI
+          </p>
+          <ModeButtons modes={HINDI_MODES} active={mode} onMode={onMode} bests={bests} />
+          <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
+            50 common Hindi words in Roman script, like typing Hinglish.
           </p>
         </div>
         <div>

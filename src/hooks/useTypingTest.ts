@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { WORDS } from "../data/words";
 import { CODE_WORDS } from "../data/codeWords";
+import { HINDI_WORDS } from "../data/hindiWords";
 import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
 
 /** Timer modes are plain seconds: 15/30/60/120 are the presets, and users can
  *  also type a custom number of seconds. Everything that is not a word, quote,
  *  or zen mode is treated as a timer mode. */
-export type TestMode = number | "w25" | "w50" | "w100" | "quote" | "zen" | "daily" | "code";
+export type TestMode = number | "w25" | "w50" | "w100" | "quote" | "zen" | "daily" | "code" | "hindi";
 export type TestStatus = "idle" | "running" | "finished";
 
 export type WordMode = "w25" | "w50" | "w100";
@@ -37,26 +38,31 @@ export function isCodeMode(m: TestMode): m is "code" {
   return m === "code";
 }
 
+/** Type guard: true for hindi mode. */
+export function isHindiMode(m: TestMode): m is "hindi" {
+  return m === "hindi";
+}
+
 /** Number of words for a word-count mode, or null for timer and quote modes. */
 export function wordCountOf(m: TestMode): number | null {
   return isWordMode(m) ? parseInt(m.slice(1), 10) : null;
 }
 
-/** Human label for a mode: "25 words", "30s", "quote", "zen", "daily", or "code". */
+/** Human label for a mode: "25 words", "30s", "quote", "zen", "daily", "code", or "hindi". */
 export function modeLabel(m: TestMode): string {
-  if (isQuoteMode(m) || isZenMode(m) || isDailyMode(m) || isCodeMode(m)) return m;
+  if (isQuoteMode(m) || isZenMode(m) || isDailyMode(m) || isCodeMode(m) || isHindiMode(m)) return m;
   return isWordMode(m) ? `${wordCountOf(m)} words` : `${m}s`;
 }
 
-/** Compact label for mode buttons: "25w", "30s", "quote", "zen", "daily", or "code". */
+/** Compact label for mode buttons: "25w", "30s", "quote", "zen", "daily", "code", or "hindi". */
 export function modeShort(m: TestMode): string {
-  if (isQuoteMode(m) || isZenMode(m) || isDailyMode(m) || isCodeMode(m)) return m;
+  if (isQuoteMode(m) || isZenMode(m) || isDailyMode(m) || isCodeMode(m) || isHindiMode(m)) return m;
   return isWordMode(m) ? `${wordCountOf(m)}w` : `${m}s`;
 }
 
-/** Words generated per run: the fixed count in word, daily, and code modes. */
+/** Words generated per run: the fixed count in word, daily, code, and hindi modes. */
 const wordTarget = (m: TestMode): number =>
-  wordCountOf(m) ?? (isDailyMode(m) ? DAILY_WORDS : isCodeMode(m) ? CODE_WORD_COUNT : INITIAL_WORDS);
+  wordCountOf(m) ?? (isDailyMode(m) ? DAILY_WORDS : isCodeMode(m) ? CODE_WORD_COUNT : isHindiMode(m) ? HINDI_WORD_COUNT : INITIAL_WORDS);
 
 /** Today's daily-challenge date key in local time: YYYY-MM-DD. */
 export function dailyKey(d = new Date()): string {
@@ -97,7 +103,8 @@ export function seededDailyWords(): string[] {
 }
 
 /** Word list for a run: a random quote in quote mode, the shared seeded list
- *  in daily mode, random code tokens in code mode, random words otherwise. */
+ *  in daily mode, random code tokens in code mode, random Hindi words in
+ *  hindi mode, random words otherwise. */
 function genWords(m: TestMode): { words: string[]; author: string | null } {
   if (isQuoteMode(m)) {
     const q = randomQuote();
@@ -109,15 +116,19 @@ function genWords(m: TestMode): { words: string[]; author: string | null } {
   if (isCodeMode(m)) {
     return { words: randomCodeWords(wordTarget(m)), author: null };
   }
+  if (isHindiMode(m)) {
+    return { words: randomHindiWords(wordTarget(m)), author: null };
+  }
   return { words: randomWords(wordTarget(m)), author: null };
 }
 
-/** Initial HUD value: words remaining in word, quote, daily, and code modes,
- *  seconds in timer modes, and 0 in zen mode where the clock counts up instead. */
+/** Initial HUD value: words remaining in word, quote, daily, code, and hindi
+ *  modes, seconds in timer modes, and 0 in zen mode where the clock counts up
+ *  instead. */
 const initialTimeLeft = (m: TestMode, words: string[]): number =>
   isZenMode(m)
     ? 0
-    : isWordMode(m) || isQuoteMode(m) || isDailyMode(m) || isCodeMode(m)
+    : isWordMode(m) || isQuoteMode(m) || isDailyMode(m) || isCodeMode(m) || isHindiMode(m)
       ? words.length
       : m;
 
@@ -146,6 +157,7 @@ const EXTEND_BY = 60;
 const MAX_EXTRA = 8;
 const DAILY_WORDS = 50;
 const CODE_WORD_COUNT = 50;
+const HINDI_WORD_COUNT = 50;
 
 function randomWords(n: number): string[] {
   const out: string[] = [];
@@ -159,6 +171,14 @@ function randomCodeWords(n: number): string[] {
   const out: string[] = [];
   for (let i = 0; i < n; i++) {
     out.push(CODE_WORDS[Math.floor(Math.random() * CODE_WORDS.length)]);
+  }
+  return out;
+}
+
+function randomHindiWords(n: number): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < n; i++) {
+    out.push(HINDI_WORDS[Math.floor(Math.random() * HINDI_WORDS.length)]);
   }
   return out;
 }
@@ -205,8 +225,8 @@ export function useTypingTest(initialMode: TestMode = 30) {
     const m = modeRef.current;
     const elapsedSec =
       startRef.current !== null ? (Date.now() - startRef.current) / 1000 : 0;
-    // Word, quote, daily, code, and zen modes score over the actual elapsed time; timer modes over the mode.
-    const untimed = isWordMode(m) || isQuoteMode(m) || isZenMode(m) || isDailyMode(m) || isCodeMode(m);
+    // Word, quote, daily, code, hindi, and zen modes score over the actual elapsed time; timer modes over the mode.
+    const untimed = isWordMode(m) || isQuoteMode(m) || isZenMode(m) || isDailyMode(m) || isCodeMode(m) || isHindiMode(m);
     const minutes = untimed ? Math.max(elapsedSec / 60, 1 / 600) : m / 60;
     const durationSec = untimed ? elapsedSec : m;
 
@@ -274,8 +294,8 @@ export function useTypingTest(initialMode: TestMode = 30) {
       if (isZenMode(m)) {
         // Zen has no timer: the HUD clock counts up, the run never ends on its own.
         setTimeLeft(elapsed);
-      } else if (!isWordMode(m) && !isQuoteMode(m) && !isDailyMode(m) && !isCodeMode(m)) {
-        // Word, quote, daily, and code modes end on the final word, not on a timer.
+      } else if (!isWordMode(m) && !isQuoteMode(m) && !isDailyMode(m) && !isCodeMode(m) && !isHindiMode(m)) {
+        // Word, quote, daily, code, and hindi modes end on the final word, not on a timer.
         const left = Math.max(0, m - elapsed);
         setTimeLeft(left);
         if (left <= 0) finishRef.current();
@@ -309,12 +329,13 @@ export function useTypingTest(initialMode: TestMode = 30) {
         entriesRef.current.push({ ch: " ", correct: t === expected, extra: false });
         secRef.current.count++;
         const nextIdx = s.wordIdx + 1;
-        // Word, quote, daily, and code modes end on the final word, not on a timer.
+        // Word, quote, daily, code, and hindi modes end on the final word, not on a timer.
         const endsByWords =
           isWordMode(modeRef.current) ||
           isQuoteMode(modeRef.current) ||
           isDailyMode(modeRef.current) ||
-          isCodeMode(modeRef.current);
+          isCodeMode(modeRef.current) ||
+          isHindiMode(modeRef.current);
         if (!endsByWords && nextIdx + EXTEND_AT >= s.words.length) {
           const nw = [...s.words, ...randomWords(EXTEND_BY)];
           const nt = [...s.typed];
