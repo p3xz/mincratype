@@ -180,7 +180,9 @@ export default function App() {
             >
               <ModeSelect
                 mode={test.mode}
+                difficulty={test.difficulty}
                 onMode={test.changeMode}
+                onDifficulty={test.changeDifficulty}
                 onStart={startTest}
                 bests={bests}
               />
@@ -196,6 +198,7 @@ export default function App() {
             >
               <TopBar
                 mode={test.mode}
+                difficulty={test.difficulty}
                 total={
                   isZenMode(test.mode)
                     ? 1

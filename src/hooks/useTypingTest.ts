@@ -4,6 +4,7 @@ import { CODE_WORDS } from "../data/codeWords";
 import { HINDI_WORDS } from "../data/hindiWords";
 import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
+import { getDifficulty, saveDifficulty } from "../lib/storage";
 
 /** Timer modes are plain seconds: 15/30/60/120 are the presets, and users can
  *  also type a custom number of seconds. Everything that is not a word, quote,
@@ -13,9 +14,49 @@ export type TestStatus = "idle" | "running" | "finished";
 
 export type WordMode = "w25" | "w50" | "w100";
 
+/** Difficulty filter for word-list modes: all words, short words only
+ *  (1-4 letters), or long words only (5+ letters). */
+export type Difficulty = "all" | "short" | "long";
+
+export const DIFFICULTIES: Difficulty[] = ["all", "short", "long"];
+
+/** Words at most this long count as short; everything longer counts as long. */
+const SHORT_MAX = 4;
+
+/** The English word pool filtered by difficulty. */
+function poolFor(d: Difficulty): string[] {
+  if (d === "short") return WORDS.filter((w) => w.length <= SHORT_MAX);
+  if (d === "long") return WORDS.filter((w) => w.length > SHORT_MAX);
+  return WORDS;
+}
+
+/** Compact label for difficulty buttons: "all", "short", or "long". */
+export function difficultyShort(d: Difficulty): string {
+  return d;
+}
+
+/** Human label for a difficulty: "all words", "short words (1-4 letters)",
+ *  or "long words (5+ letters)". */
+export function difficultyLabel(d: Difficulty): string {
+  if (d === "short") return `short words (1-${SHORT_MAX} letters)`;
+  if (d === "long") return `long words (${SHORT_MAX + 1}+ letters)`;
+  return "all words";
+}
+
 /** Type guard: true for word-count modes like "w25". */
 export function isWordMode(m: TestMode): m is WordMode {
   return m === "w25" || m === "w50" || m === "w100";
+}
+
+/** Type guard: true for timer, word-count, and zen modes, which all draw from
+ *  the English word list that the difficulty filter applies to. */
+export function isWordPoolMode(m: TestMode): boolean {
+  return (
+    !isQuoteMode(m) &&
+    !isDailyMode(m) &&
+    !isCodeMode(m) &&
+    !isHindiMode(m)
+  );
 }
 
 /** Type guard: true for quote mode. */
@@ -104,8 +145,8 @@ export function seededDailyWords(): string[] {
 
 /** Word list for a run: a random quote in quote mode, the shared seeded list
  *  in daily mode, random code tokens in code mode, random Hindi words in
- *  hindi mode, random words otherwise. */
-function genWords(m: TestMode): { words: string[]; author: string | null } {
+ *  hindi mode, random words from the difficulty-filtered pool otherwise. */
+function genWords(m: TestMode, d: Difficulty): { words: string[]; author: string | null } {
   if (isQuoteMode(m)) {
     const q = randomQuote();
     return { words: q.text.split(" "), author: q.author };
@@ -119,7 +160,7 @@ function genWords(m: TestMode): { words: string[]; author: string | null } {
   if (isHindiMode(m)) {
     return { words: randomHindiWords(wordTarget(m)), author: null };
   }
-  return { words: randomWords(wordTarget(m)), author: null };
+  return { words: randomWords(wordTarget(m), d), author: null };
 }
 
 /** Initial HUD value: words remaining in word, quote, daily, code, and hindi
@@ -140,6 +181,7 @@ export interface KeyEntry {
 
 export interface TestResult {
   mode: TestMode;
+  difficulty: Difficulty;
   wpm: number;
   raw: number;
   accuracy: number;
@@ -159,10 +201,11 @@ const DAILY_WORDS = 50;
 const CODE_WORD_COUNT = 50;
 const HINDI_WORD_COUNT = 50;
 
-function randomWords(n: number): string[] {
+function randomWords(n: number, d: Difficulty = "all"): string[] {
+  const pool = poolFor(d);
   const out: string[] = [];
   for (let i = 0; i < n; i++) {
-    out.push(WORDS[Math.floor(Math.random() * WORDS.length)]);
+    out.push(pool[Math.floor(Math.random() * pool.length)]);
   }
   return out;
 }
@@ -185,7 +228,8 @@ function randomHindiWords(n: number): string[] {
 
 export function useTypingTest(initialMode: TestMode = 30) {
   const [mode, setMode] = useState<TestMode>(initialMode);
-  const [initial] = useState(() => genWords(initialMode));
+  const [difficulty, setDifficulty] = useState<Difficulty>(() => getDifficulty());
+  const [initial] = useState(() => genWords(initialMode, getDifficulty()));
   const [words, setWords] = useState<string[]>(initial.words);
   const [quoteAuthor, setQuoteAuthor] = useState<string | null>(initial.author);
   const [typed, setTyped] = useState<string[]>(() =>
@@ -204,6 +248,8 @@ export function useTypingTest(initialMode: TestMode = 30) {
   const timerRef = useRef<number | null>(null);
   const modeRef = useRef<TestMode>(initialMode);
   modeRef.current = mode;
+  const difficultyRef = useRef<Difficulty>(difficulty);
+  difficultyRef.current = difficulty;
 
   // Fresh-state mirror so timer callbacks and handlers never go stale.
   const stateRef = useRef({ words, typed, wordIdx, status });
@@ -258,6 +304,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
 
     setResult({
       mode: modeRef.current,
+      difficulty: difficultyRef.current,
       wpm: wpmFromChars(correctLetters + correctSpaces, minutes),
       raw: wpmFromChars(total, minutes),
       accuracy: accuracy(correct, total),
@@ -337,7 +384,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
           isCodeMode(modeRef.current) ||
           isHindiMode(modeRef.current);
         if (!endsByWords && nextIdx + EXTEND_AT >= s.words.length) {
-          const nw = [...s.words, ...randomWords(EXTEND_BY)];
+          const nw = [...s.words, ...randomWords(EXTEND_BY, difficultyRef.current)];
           const nt = [...s.typed];
           while (nt.length < nw.length) nt.push("");
           setWords(nw);
@@ -376,7 +423,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     startRef.current = null;
     entriesRef.current = [];
     secRef.current = { whole: 0, count: 0, samples: [] };
-    const g = genWords(modeRef.current);
+    const g = genWords(modeRef.current, difficultyRef.current);
     setWords(g.words);
     setQuoteAuthor(g.author);
     setTyped(Array(g.words.length).fill(""));
@@ -390,6 +437,16 @@ export function useTypingTest(initialMode: TestMode = 30) {
     (m: TestMode) => {
       setMode(m);
       modeRef.current = m;
+      restart();
+    },
+    [restart]
+  );
+
+  const changeDifficulty = useCallback(
+    (d: Difficulty) => {
+      setDifficulty(d);
+      difficultyRef.current = d;
+      saveDifficulty(d);
       restart();
     },
     [restart]
@@ -411,6 +468,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
 
   return {
     mode,
+    difficulty,
     words,
     quoteAuthor,
     typed,
@@ -421,6 +479,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     handleKey,
     restart,
     changeMode,
+    changeDifficulty,
     finish,
     getLive,
   };

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { modeLabel } from "../hooks/useTypingTest";
+import { isWordPoolMode, modeLabel } from "../hooks/useTypingTest";
 import type { TestResult } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
 
@@ -65,7 +65,7 @@ export default function Results({ result, isNewBest, best, onRetry, onMenu }: Pr
           label="CHARACTERS"
           value={`${result.correctChars}/${result.incorrectChars}/${result.extraChars}/${result.missedChars}`}
         />
-        <Stat label="MODE" value={modeLabel(result.mode)} />
+        <Stat label="MODE" value={modeLabel(result.mode) + (result.difficulty !== "all" && isWordPoolMode(result.mode) ? ` ${result.difficulty}` : "")} />
         <Stat label="TIME" value={`${Math.round(result.durationSec)}s`} />
       </div>
       <p className="text-[11px] text-stone-600 font-type mt-3">

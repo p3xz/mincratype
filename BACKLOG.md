@@ -12,7 +12,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 ## Words and languages
 - [x] Code word pack (keywords and symbols for programmers)
 - [x] Additional language word lists (starting with Hindi transliteration pack)
-- [ ] Difficulty filter: short words only / long words only
+- [x] Difficulty filter: short words only / long words only
 
 ## Stats and feedback
 - [ ] Per-second WPM line chart on the results screen

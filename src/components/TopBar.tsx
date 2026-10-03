@@ -1,8 +1,9 @@
-import { isCodeMode, isDailyMode, isHindiMode, isQuoteMode, isWordMode, isZenMode } from "../hooks/useTypingTest";
-import type { TestMode } from "../hooks/useTypingTest";
+import { isCodeMode, isDailyMode, isHindiMode, isQuoteMode, isWordMode, isWordPoolMode, isZenMode } from "../hooks/useTypingTest";
+import type { Difficulty, TestMode } from "../hooks/useTypingTest";
 
 interface Props {
   mode: TestMode;
+  difficulty: Difficulty;
   /** Denominator for the XP progress bar: seconds in timer modes, word count otherwise. */
   total: number;
   timeLeft: number;
@@ -17,6 +18,7 @@ interface Props {
 
 export default function TopBar({
   mode,
+  difficulty,
   total,
   timeLeft,
   wpm,
@@ -29,6 +31,7 @@ export default function TopBar({
 }: Props) {
   const zen = isZenMode(mode);
   const countMode = isWordMode(mode) || isQuoteMode(mode) || isDailyMode(mode) || isCodeMode(mode) || isHindiMode(mode);
+  const showDiff = difficulty !== "all" && isWordPoolMode(mode);
   const pct = zen
     ? 100 // endless run, bar stays full
     : Math.max(0, Math.min(100, (timeLeft / total) * 100));
@@ -47,6 +50,11 @@ export default function TopBar({
             {Math.ceil(timeLeft)}
             {countMode ? "w" : "s"}
           </span>
+          {showDiff && (
+            <span className="pixel-text text-[8px] text-grass-400" title={difficulty === "short" ? "short words only (1-4 letters)" : "long words only (5+ letters)"}>
+              {difficulty.toUpperCase()}
+            </span>
+          )}
           <span className="text-stone-400">
             <span className="text-stone-200 font-bold">{Math.round(wpm)}</span> wpm
           </span>

@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { dailyKey, modeShort } from "../hooks/useTypingTest";
-import type { TestMode } from "../hooks/useTypingTest";
+import { DIFFICULTIES, dailyKey, difficultyLabel, difficultyShort, isWordPoolMode, modeShort } from "../hooks/useTypingTest";
+import type { Difficulty, TestMode } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
 
 interface Props {
   mode: TestMode;
+  difficulty: Difficulty;
   onMode: (m: TestMode) => void;
+  onDifficulty: (d: Difficulty) => void;
   onStart: () => void;
   bests: Record<TestMode, PersonalBest | null>;
 }
@@ -94,7 +96,7 @@ function CustomTimer({
   );
 }
 
-export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
+export default function ModeSelect({ mode, difficulty, onMode, onDifficulty, onStart, bests }: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
@@ -137,6 +139,30 @@ export default function ModeSelect({ mode, onMode, onStart, bests }: Props) {
           </p>
           <ModeButtons modes={WORD_MODES} active={mode} onMode={onMode} bests={bests} />
         </div>
+        {isWordPoolMode(mode) && (
+          <div>
+            <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+              DIFFICULTY
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {DIFFICULTIES.map((d) => (
+                <button
+                  key={d}
+                  onClick={() => onDifficulty(d)}
+                  title={difficultyLabel(d)}
+                  className={`mc-btn mc-btn-sm ${difficulty === d ? "mc-btn-primary" : ""}`}
+                >
+                  {difficultyShort(d)}
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
+              Filters the word list for timer, word-count, and zen runs:{" "}
+              {difficultyLabel("all")}, {difficultyLabel("short")}, or{" "}
+              {difficultyLabel("long")}.
+            </p>
+          </div>
+        )}
         <div>
           <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
             QUOTE

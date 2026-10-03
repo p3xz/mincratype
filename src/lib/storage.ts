@@ -1,4 +1,4 @@
-import type { TestMode } from "../hooks/useTypingTest";
+import type { Difficulty, TestMode } from "../hooks/useTypingTest";
 import { dailyKey } from "../hooks/useTypingTest";
 
 export interface PersonalBest {
@@ -36,6 +36,28 @@ export function getAllBests(): Record<TestMode, PersonalBest | null> {
     code: getBest("code"),
     hindi: getBest("hindi"),
   };
+}
+
+const difficultyKey = "mincratype-difficulty";
+
+/** Reads the saved word-list difficulty, defaulting to "all". */
+export function getDifficulty(): Difficulty {
+  try {
+    const raw = localStorage.getItem(difficultyKey);
+    if (raw === "short" || raw === "long" || raw === "all") return raw;
+  } catch {
+    // storage unavailable, ignore
+  }
+  return "all";
+}
+
+/** Persists the word-list difficulty across sessions. */
+export function saveDifficulty(d: Difficulty): void {
+  try {
+    localStorage.setItem(difficultyKey, d);
+  } catch {
+    // storage unavailable, ignore
+  }
 }
 
 /** Daily-challenge bests are stored per date, since everyone plays the same
