@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { isWordPoolMode, modeLabel } from "../hooks/useTypingTest";
 import type { TestResult } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
+import WpmChart from "./WpmChart";
 
 interface Props {
   result: TestResult;
@@ -71,6 +72,13 @@ export default function Results({ result, isNewBest, best, onRetry, onMenu }: Pr
       <p className="text-[11px] text-stone-600 font-type mt-3">
         correct / incorrect / extra / missed characters
       </p>
+
+      {result.wpmHistory.length > 1 && (
+        <div className="mc-panel p-4 mt-8 text-left">
+          <div className="pixel-text text-[8px] text-stone-500 mb-3">WPM PER SECOND</div>
+          <WpmChart data={result.wpmHistory} />
+        </div>
+      )}
 
       <div className="flex flex-wrap justify-center gap-4 mt-8">
         <button onClick={onRetry} className="mc-btn mc-btn-primary">

@@ -15,7 +15,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 - [x] Difficulty filter: short words only / long words only
 
 ## Stats and feedback
-- [ ] Per-second WPM line chart on the results screen
+- [x] Per-second WPM line chart on the results screen
 - [ ] Key heatmap showing slowest / most-missed keys
 - [ ] Personal-best history sparkline per mode
 - [ ] Blind mode: typed characters stay hidden until the word is done

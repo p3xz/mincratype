@@ -191,6 +191,8 @@ export interface TestResult {
   extraChars: number;
   missedChars: number;
   durationSec: number;
+  /** Raw per-second WPM samples (one per elapsed second) for the results chart. */
+  wpmHistory: number[];
 }
 
 const INITIAL_WORDS = 150;
@@ -302,6 +304,15 @@ export function useTypingTest(initialMode: TestMode = 30) {
       for (let p = t.length; p < w.length; p++) missed++;
     }
 
+    // Include the trailing partial second so the chart does not drop the
+    // final burst (word modes often finish mid-second).
+    const sr = secRef.current;
+    if (sr.count > 0) {
+      sr.samples.push(sr.count * 12);
+      sr.count = 0;
+      sr.whole++;
+    }
+
     setResult({
       mode: modeRef.current,
       difficulty: difficultyRef.current,
@@ -314,6 +325,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
       extraChars: extra,
       missedChars: missed,
       durationSec,
+      wpmHistory: [...secRef.current.samples],
     });
     setStatus("finished");
     setTimeLeft(0);
