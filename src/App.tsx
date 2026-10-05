@@ -7,6 +7,7 @@ import TypingArea from "./components/TypingArea";
 import ModeSelect from "./components/ModeSelect";
 import TopBar from "./components/TopBar";
 import Footer from "./components/Footer";
+import PrivacyNote from "./components/PrivacyNote";
 import Results from "./components/Results";
 import Keyboard, { pillLabel } from "./components/Keyboard";
 
@@ -19,11 +20,14 @@ export default function App() {
   const [kbVisible, setKbVisible] = useState(false);
   const [muted, setMutedState] = useState(isMuted());
   const [isNewBest, setIsNewBest] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const statusRef = useRef(test.status);
   statusRef.current = test.status;
+  const privacyRef = useRef(showPrivacy);
+  privacyRef.current = showPrivacy;
 
   // The keyboard slides up on the first keystroke of a run and hides on reset.
   useEffect(() => {
@@ -101,6 +105,11 @@ export default function App() {
       if (document.activeElement instanceof HTMLButtonElement) {
         document.activeElement.blur();
       }
+      // The privacy note is a quiet page: keys do not reach the test.
+      if (privacyRef.current) {
+        if (e.key === "Escape") setShowPrivacy(false);
+        return;
+      }
       pressVisual(e.code, true);
       if (e.key === "Tab") e.preventDefault();
       if (phaseRef.current === "menu") {
@@ -168,6 +177,9 @@ export default function App() {
       <div className="cave-vignette" />
 
       <main className="flex-1 flex flex-col w-full max-w-5xl mx-auto px-4 sm:px-6">
+        {showPrivacy ? (
+          <PrivacyNote onClose={() => setShowPrivacy(false)} />
+        ) : (
         <AnimatePresence mode="wait">
           {phase === "menu" ? (
             <motion.div
@@ -259,9 +271,10 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
+        )}
       </main>
 
-      <Footer />
+      <Footer onPrivacy={() => setShowPrivacy(true)} />
     </div>
   );
 }
