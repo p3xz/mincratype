@@ -30,6 +30,14 @@ body,
   height: 100%;
 }
 
+/* Visible keyboard focus, Minecraft style: a bright XP-green blocky
+   outline so tabbing through modes, buttons, and links is always clear. */
+:focus-visible {
+  outline: 3px solid var(--color-xp-500);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 body {
   margin: 0;
   background-color: #0d0b09;
