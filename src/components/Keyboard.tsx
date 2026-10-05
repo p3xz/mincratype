@@ -25,7 +25,8 @@ const digit = (code: string, label: string, sub: string): KeyDef => ({
   action: label,
 });
 
-const ROWS: KeyDef[][] = [
+/** Keyboard row layout, also reused by the results key heatmap. */
+export const ROWS: KeyDef[][] = [
   [
     { code: "Escape", label: "ESC", w: 1, tone: "dark" },
     digit("Digit1", "1", "!"),

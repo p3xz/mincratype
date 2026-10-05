@@ -3,6 +3,7 @@ import { isWordPoolMode, modeLabel } from "../hooks/useTypingTest";
 import type { TestResult } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
 import WpmChart from "./WpmChart";
+import KeyHeatmap from "./KeyHeatmap";
 
 interface Props {
   result: TestResult;
@@ -79,6 +80,8 @@ export default function Results({ result, isNewBest, best, onRetry, onMenu }: Pr
           <WpmChart data={result.wpmHistory} />
         </div>
       )}
+
+      {result.keyStats.length > 0 && <KeyHeatmap stats={result.keyStats} />}
 
       <div className="flex flex-wrap justify-center gap-4 mt-8">
         <button onClick={onRetry} className="mc-btn mc-btn-primary">

@@ -177,6 +177,17 @@ export interface KeyEntry {
   ch: string;
   correct: boolean;
   extra: boolean;
+  /** Date.now() at the moment the key was pressed, for per-key latency stats. */
+  t: number;
+}
+
+/** Per-key typing stats aggregated at finish: average time since the previous
+ *  keystroke, total hits, and incorrect hits. Drives the key heatmap. */
+export interface KeyStat {
+  key: string;
+  avgMs: number;
+  hits: number;
+  misses: number;
 }
 
 export interface TestResult {
@@ -193,6 +204,8 @@ export interface TestResult {
   durationSec: number;
   /** Raw per-second WPM samples (one per elapsed second) for the results chart. */
   wpmHistory: number[];
+  /** Per-key latency and miss stats for the key heatmap. */
+  keyStats: KeyStat[];
 }
 
 const INITIAL_WORDS = 150;
@@ -313,6 +326,24 @@ export function useTypingTest(initialMode: TestMode = 30) {
       sr.whole++;
     }
 
+    // Per-key stats: average time since the previous keystroke (capped so a
+    // mid-test pause does not distort the numbers) plus miss counts. Letters
+    // are folded to lowercase so shifted keystrokes still map to their key.
+    const agg = new Map<string, { delay: number; hits: number; misses: number }>();
+    for (let i = 1; i < entries.length; i++) {
+      const e = entries[i];
+      if (e.ch.length !== 1) continue;
+      const key = e.ch === " " ? " " : e.ch.toLowerCase();
+      const prev = agg.get(key) ?? { delay: 0, hits: 0, misses: 0 };
+      prev.delay += Math.min(e.t - entries[i - 1].t, 2000);
+      prev.hits++;
+      if (!e.correct) prev.misses++;
+      agg.set(key, prev);
+    }
+    const keyStats: KeyStat[] = [...agg.entries()]
+      .map(([key, a]) => ({ key, avgMs: a.delay / a.hits, hits: a.hits, misses: a.misses }))
+      .sort((a, b) => b.avgMs - a.avgMs);
+
     setResult({
       mode: modeRef.current,
       difficulty: difficultyRef.current,
@@ -326,6 +357,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
       missedChars: missed,
       durationSec,
       wpmHistory: [...secRef.current.samples],
+      keyStats,
     });
     setStatus("finished");
     setTimeLeft(0);
@@ -385,7 +417,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
         if (t.length === 0) return;
         ensureStarted();
         const expected = s.words[s.wordIdx];
-        entriesRef.current.push({ ch: " ", correct: t === expected, extra: false });
+        entriesRef.current.push({ ch: " ", correct: t === expected, extra: false, t: Date.now() });
         secRef.current.count++;
         const nextIdx = s.wordIdx + 1;
         // Word, quote, daily, code, and hindi modes end on the final word, not on a timer.
@@ -424,7 +456,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
       const nt = [...s.typed];
       nt[s.wordIdx] = t + key;
       setTyped(nt);
-      entriesRef.current.push({ ch: key, correct, extra });
+      entriesRef.current.push({ ch: key, correct, extra, t: Date.now() });
       secRef.current.count++;
     },
     [ensureStarted]
