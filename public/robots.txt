@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mincratype.vercel.app/sitemap.xml
