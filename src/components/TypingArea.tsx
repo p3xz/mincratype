@@ -1,5 +1,4 @@
-import { memo, useLayoutEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { memo, useLayoutEffect, useRef } from "react";
 
 interface Props {
   words: string[];
@@ -51,9 +50,13 @@ const Word = memo(function Word({
 
 export default function TypingArea({ words, typed, wordIdx }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [caret, setCaret] = useState({ x: 0, y: 0, h: 34 });
-  const [shift, setShift] = useState(0);
+  const wordsRef = useRef<HTMLDivElement>(null);
+  const caretRef = useRef<HTMLDivElement>(null);
 
+  // Caret position and line scroll are written straight to the DOM.
+  // Doing this through React state would cost two extra renders plus two
+  // framer-motion spring restarts on every keystroke, which is the typing
+  // jank. A short CSS transition keeps the motion smooth for free.
   useLayoutEffect(() => {
     const cont = containerRef.current;
     if (!cont) return;
@@ -78,13 +81,19 @@ export default function TypingArea({ words, typed, wordIdx }: Props) {
         h = r.height;
       }
     }
-    setCaret({ x, y, h });
+    const caret = caretRef.current;
+    if (caret) {
+      caret.style.transform = `translate(${x}px, ${y}px)`;
+      caret.style.height = `${h}px`;
+    }
 
     const wordEl = cont.querySelector(`[data-word="${wordIdx}"]`);
-    if (wordEl) {
+    const wordsEl = wordsRef.current;
+    if (wordEl && wordsEl) {
       const r = (wordEl as HTMLElement).getBoundingClientRect();
       const targetTop = crect.top + 8;
-      setShift(Math.min(0, targetTop - r.top));
+      const shift = Math.min(0, targetTop - r.top);
+      wordsEl.style.transform = `translateY(${shift}px)`;
     }
   }, [words, typed, wordIdx]);
 
@@ -93,10 +102,9 @@ export default function TypingArea({ words, typed, wordIdx }: Props) {
       ref={containerRef}
       className="relative h-[7rem] sm:h-[8.5rem] overflow-hidden select-none"
     >
-      <motion.div
-        animate={{ y: shift }}
-        transition={{ type: "spring", stiffness: 320, damping: 34 }}
-        className="text-[1.15rem] leading-[2rem] sm:text-[1.7rem] sm:leading-[2.8rem] font-type tracking-wide"
+      <div
+        ref={wordsRef}
+        className="type-words text-[1.15rem] leading-[2rem] sm:text-[1.7rem] sm:leading-[2.8rem] font-type tracking-wide"
       >
         {words.map((w, wi) => (
           <Word
@@ -107,12 +115,8 @@ export default function TypingArea({ words, typed, wordIdx }: Props) {
             index={wi}
           />
         ))}
-      </motion.div>
-      <motion.div
-        className="type-caret"
-        animate={{ x: caret.x, y: caret.y, height: caret.h }}
-        transition={{ type: "spring", stiffness: 550, damping: 42 }}
-      />
+      </div>
+      <div ref={caretRef} className="type-caret" />
     </div>
   );
 }

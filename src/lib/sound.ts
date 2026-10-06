@@ -30,6 +30,12 @@ export function isMuted(): boolean {
   return muted;
 }
 
+/** Create/resume the AudioContext early (inside a user gesture) so the
+ *  first keystroke does not pay context-creation cost mid-test. */
+export function warmAudio(): void {
+  ac();
+}
+
 export function setMuted(m: boolean): void {
   muted = m;
   try {

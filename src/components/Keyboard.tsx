@@ -184,14 +184,9 @@ export default function Keyboard({ visible, pressed, recent, onPress }: Props) {
           <div className="flex items-center justify-center gap-2 mb-3 flex-wrap min-h-[30px]">
             {recent.length > 0 ? (
               recent.map((r, i) => (
-                <motion.span
-                  key={`${r}-${i}`}
-                  initial={{ scale: 0.7, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="mc-slot"
-                >
+                <span key={`${r}-${i}`} className="mc-slot">
                   {r}
-                </motion.span>
+                </span>
               ))
             ) : (
               <span className="mc-kb-hint">PRESS ANY KEY</span>

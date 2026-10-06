@@ -327,6 +327,17 @@ body {
   background: var(--color-xp-500);
   box-shadow: 0 0 10px rgba(126, 252, 32, 0.8);
   pointer-events: none;
+  /* Position is written directly to the DOM every keystroke (see
+     TypingArea). A short GPU-cheap transition keeps it gliding instead
+     of jumping, with none of the per-keystroke spring cost. */
+  transition: transform 70ms linear, height 70ms linear;
+  will-change: transform;
+}
+
+.type-words {
+  /* Line scroll is written directly to the DOM every keystroke. */
+  transition: transform 120ms ease-out;
+  will-change: transform;
 }
 
 @keyframes float-slow {

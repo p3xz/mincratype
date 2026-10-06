@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTypingTest, isCodeMode, isDailyMode, isGitMode, isHindiMode, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
 import { getAllBests, getBest, saveBest, getDailyBest, saveDailyBest, recordHistory } from "./lib/storage";
-import { finishChime, isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
+import { finishChime, isMuted, keyClick, keyThock, setMuted, warmAudio } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
 import StartScreen from "./components/StartScreen";
 import SettingsModal from "./components/SettingsModal";
@@ -140,6 +140,7 @@ export default function App() {
       if (e.key === "Tab") e.preventDefault();
       if (phaseRef.current === "start") {
         // First key only opens the test; it is not typed.
+        warmAudio();
         pushRecent(pillLabel(e.code, e.key));
         playFor(e.key);
         setPhase("active");
@@ -189,6 +190,7 @@ export default function App() {
 
   const startTest = () => {
     focusInput();
+    warmAudio();
     setPhase("active");
   };
   const exitToStart = () => {
