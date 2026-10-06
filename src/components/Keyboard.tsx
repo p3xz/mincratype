@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export interface KeyDef {
@@ -129,6 +130,46 @@ interface Props {
   onPress: (code: string, action: string | undefined, down: boolean) => void;
 }
 
+/** One physical key. Memoized on a per-key `isPressed` boolean so the ~60
+ *  keys do not all re-render when the `pressed` Set identity changes on
+ *  every keydown/keyup; only the key that changed state re-renders. */
+const Key = memo(function Key({
+  def,
+  isPressed,
+  rowIdx,
+  keyIdx,
+  onPress,
+}: {
+  def: KeyDef;
+  isPressed: boolean;
+  rowIdx: number;
+  keyIdx: number;
+  onPress: Props["onPress"];
+}) {
+  return (
+    <button
+      type="button"
+      data-pressed={isPressed}
+      data-tone={def.tone ?? "stone"}
+      data-var={(rowIdx * 7 + keyIdx * 13) % 3}
+      className="mc-key"
+      style={{ flexGrow: def.w ?? 1, flexBasis: 0 }}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        onPress(def.code, def.action, true);
+      }}
+      onPointerUp={() => onPress(def.code, undefined, false)}
+      onPointerLeave={() => onPress(def.code, undefined, false)}
+      onPointerCancel={() => onPress(def.code, undefined, false)}
+      onContextMenu={(e) => e.preventDefault()}
+      aria-label={def.label}
+    >
+      {def.sub && <span className="k-sub">{def.sub}</span>}
+      <span className="k-label">{def.label}</span>
+    </button>
+  );
+});
+
 export default function Keyboard({ visible, pressed, recent, onPress }: Props) {
   return (
     <AnimatePresence>
@@ -160,27 +201,14 @@ export default function Keyboard({ visible, pressed, recent, onPress }: Props) {
             {ROWS.map((row, ri) => (
               <div key={ri} className="flex gap-1.5 mb-1.5 last:mb-0">
                 {row.map((k, ki) => (
-                  <button
+                  <Key
                     key={k.code}
-                    type="button"
-                    data-pressed={pressed.has(k.code)}
-                    data-tone={k.tone ?? "stone"}
-                    data-var={(ri * 7 + ki * 13) % 3}
-                    className="mc-key"
-                    style={{ flexGrow: k.w ?? 1, flexBasis: 0 }}
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      onPress(k.code, k.action, true);
-                    }}
-                    onPointerUp={() => onPress(k.code, undefined, false)}
-                    onPointerLeave={() => onPress(k.code, undefined, false)}
-                    onPointerCancel={() => onPress(k.code, undefined, false)}
-                    onContextMenu={(e) => e.preventDefault()}
-                    aria-label={k.label}
-                  >
-                    {k.sub && <span className="k-sub">{k.sub}</span>}
-                    <span className="k-label">{k.label}</span>
-                  </button>
+                    def={k}
+                    isPressed={pressed.has(k.code)}
+                    rowIdx={ri}
+                    keyIdx={ki}
+                    onPress={onPress}
+                  />
                 ))}
               </div>
             ))}

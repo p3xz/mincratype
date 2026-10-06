@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { memo, useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 interface Props {
@@ -6,6 +6,48 @@ interface Props {
   typed: string[];
   wordIdx: number;
 }
+
+/** One word of the test. Memoized so a keystroke only re-renders the word
+ *  being typed: every other word gets identical props (same word string,
+ *  same typed string, same active flag) and skips rendering entirely. */
+const Word = memo(function Word({
+  word,
+  typed,
+  active,
+  index,
+}: {
+  word: string;
+  typed: string;
+  active: boolean;
+  index: number;
+}) {
+  return (
+    <span
+      data-word={index}
+      data-wordend={index}
+      className={`type-word${active ? " type-word-active" : ""}`}
+    >
+      {word.split("").map((ch, ci) => {
+        let cls = "ch-untyped";
+        if (ci < typed.length) cls = typed[ci] === ch ? "ch-ok" : "ch-bad";
+        return (
+          <span key={ci} data-pos={`${index}:${ci}`} className={cls}>
+            {ch}
+          </span>
+        );
+      })}
+      {typed.length > word.length &&
+        typed
+          .slice(word.length)
+          .split("")
+          .map((ch, ei) => (
+            <span key={`e${ei}`} className="ch-extra">
+              {ch}
+            </span>
+          ))}
+    </span>
+  );
+});
 
 export default function TypingArea({ words, typed, wordIdx }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,37 +98,15 @@ export default function TypingArea({ words, typed, wordIdx }: Props) {
         transition={{ type: "spring", stiffness: 320, damping: 34 }}
         className="text-[1.15rem] leading-[2rem] sm:text-[1.7rem] sm:leading-[2.8rem] font-type tracking-wide"
       >
-        {words.map((w, wi) => {
-          const t = typed[wi] ?? "";
-          const isActive = wi === wordIdx;
-          return (
-            <span
-              key={wi}
-              data-word={wi}
-              data-wordend={wi}
-              className={`type-word${isActive ? " type-word-active" : ""}`}
-            >
-              {w.split("").map((ch, ci) => {
-                let cls = "ch-untyped";
-                if (ci < t.length) cls = t[ci] === ch ? "ch-ok" : "ch-bad";
-                return (
-                  <span key={ci} data-pos={`${wi}:${ci}`} className={cls}>
-                    {ch}
-                  </span>
-                );
-              })}
-              {t.length > w.length &&
-                t
-                  .slice(w.length)
-                  .split("")
-                  .map((ch, ei) => (
-                    <span key={`e${ei}`} className="ch-extra">
-                      {ch}
-                    </span>
-                  ))}
-            </span>
-          );
-        })}
+        {words.map((w, wi) => (
+          <Word
+            key={wi}
+            word={w}
+            typed={typed[wi] ?? ""}
+            active={wi === wordIdx}
+            index={wi}
+          />
+        ))}
       </motion.div>
       <motion.div
         className="type-caret"
