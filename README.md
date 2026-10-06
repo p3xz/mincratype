@@ -1,17 +1,43 @@
 # MINCRATYPE
 
+## What
+
 A Minecraft-inspired typing test. Pick a timer, mine words with your keyboard,
-and watch a blocky on-screen keyboard light up with every keystroke.
+and watch a blocky on-screen keyboard light up with every keystroke. It runs as
+a single-page app in the browser, with timer modes of 15, 30, 60, and 120
+seconds and monkeytype-style scoring (WPM, accuracy, consistency).
 
 A fan-made parody concept. Not affiliated with Mojang or Microsoft.
 
-## Run it
+## Why
 
-```bash
-npm install
-npm run dev      # local dev server
-npm run build    # production build (tsc + vite)
-```
+Built as a personal project, a playful take on the classic typing-test format
+wrapped in a Minecraft look.
+
+## When
+
+September 2026.
+
+## What we used
+
+- React 19 + TypeScript + Vite
+- Tailwind CSS v4
+- Framer Motion
+- Web Audio API (synthesized clicks and chime, no audio assets)
+- Fonts: Press Start 2P for the pixel UI, JetBrains Mono for the typing text
+
+## Why we used this
+
+- **React + TypeScript:** component-based UI with type-safe code for the typing
+  engine and score calculations.
+- **Vite:** fast dev server and production builds for a client-only app.
+- **Tailwind CSS v4:** utility-first styling for the blocky, pixel-art look.
+- **Framer Motion:** animations such as the on-screen keyboard sliding up on
+  first keystroke.
+- **Web Audio API:** synthesized key clicks and the completion chime, so the
+  app ships with no audio assets.
+- **Press Start 2P / JetBrains Mono:** the pixel font carries the Minecraft
+  theme while the mono font keeps the typing text readable.
 
 ## How it works
 
@@ -43,11 +69,13 @@ npm run build    # production build (tsc + vite)
 | Tab | Restart test |
 | Enter | Retry on the results screen |
 
-## Tech Stack
+## Getting started
 
-React 19 + TypeScript + Vite, Tailwind CSS v4, Framer Motion, Web Audio API
-(synthesized clicks and chime, no audio assets). Fonts: Press Start 2P for the
-pixel UI, JetBrains Mono for the typing text.
+```bash
+npm install
+npm run dev      # local dev server
+npm run build    # production build (tsc + vite)
+```
 
 ## Credits
 
