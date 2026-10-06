@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTypingTest, isCodeMode, isDailyMode, isHindiMode, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
-import { getAllBests, getBest, saveBest, getDailyBest, saveDailyBest } from "./lib/storage";
+import { getAllBests, getBest, saveBest, getDailyBest, saveDailyBest, recordHistory } from "./lib/storage";
 import { finishChime, isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
 import ModeSelect from "./components/ModeSelect";
@@ -38,7 +38,7 @@ export default function App() {
     }
   }, [test.status]);
 
-  // On finish: record personal best, play the XP chime.
+  // On finish: record personal best and per-mode history, play the XP chime.
   useEffect(() => {
     if (test.status === "finished" && test.result) {
       const daily = isDailyMode(test.result.mode);
@@ -47,6 +47,7 @@ export default function App() {
           ? saveDailyBest(test.result.wpm, test.result.accuracy)
           : saveBest(test.result.mode, test.result.wpm, test.result.accuracy)
       );
+      recordHistory(test.result.mode, test.result.wpm, test.result.accuracy);
       setBests(getAllBests());
       finishChime();
     }

@@ -105,3 +105,38 @@ export function saveBest(mode: TestMode, wpm: number, acc: number): boolean {
   }
   return true;
 }
+
+const MAX_HISTORY = 30;
+const historyKey = (mode: TestMode) => `mincratype-pbh-${mode}`;
+
+/** Reads the saved per-mode result history (oldest first), used for the
+ *  personal-best sparkline. Returns an empty list when nothing is stored. */
+export function getHistory(mode: TestMode): PersonalBest[] {
+  try {
+    const raw = localStorage.getItem(historyKey(mode));
+    if (!raw) return [];
+    const list = JSON.parse(raw) as PersonalBest[];
+    if (!Array.isArray(list)) return [];
+    return list.filter(
+      (e) => e && typeof e.wpm === "number" && typeof e.acc === "number"
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** Records one finished run in the per-mode history, capped at the newest
+ *  MAX_HISTORY entries. Every run is recorded, not just new bests, so the
+ *  sparkline shows progress over time. */
+export function recordHistory(mode: TestMode, wpm: number, acc: number): void {
+  try {
+    const list = getHistory(mode);
+    list.push({ wpm, acc, date: new Date().toISOString() });
+    localStorage.setItem(
+      historyKey(mode),
+      JSON.stringify(list.slice(-MAX_HISTORY))
+    );
+  } catch {
+    // storage unavailable, ignore
+  }
+}

@@ -2,8 +2,10 @@ import { motion } from "framer-motion";
 import { isWordPoolMode, modeLabel } from "../hooks/useTypingTest";
 import type { TestResult } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
+import { getHistory } from "../lib/storage";
 import WpmChart from "./WpmChart";
 import KeyHeatmap from "./KeyHeatmap";
+import PbSparkline from "./PbSparkline";
 
 interface Props {
   result: TestResult;
@@ -82,6 +84,25 @@ export default function Results({ result, isNewBest, best, onRetry, onMenu }: Pr
       )}
 
       {result.keyStats.length > 0 && <KeyHeatmap stats={result.keyStats} />}
+
+      {(() => {
+        const history = getHistory(result.mode);
+        if (history.length < 2) return null;
+        const values = history.map((h) => h.wpm);
+        return (
+          <div className="mc-panel p-4 mt-8 text-left">
+            <div className="flex items-baseline justify-between mb-3">
+              <div className="pixel-text text-[8px] text-stone-500">
+                BEST PROGRESS - {history.length} RUNS
+              </div>
+              <div className="pixel-text text-[8px] text-xp-400">
+                PEAK {Math.round(Math.max(...values))}
+              </div>
+            </div>
+            <PbSparkline values={values} />
+          </div>
+        );
+      })()}
 
       <div className="flex flex-wrap justify-center gap-4 mt-8">
         <button onClick={onRetry} className="mc-btn mc-btn-primary">
