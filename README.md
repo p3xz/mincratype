@@ -1,5 +1,9 @@
 # MINCRATYPE
 
+![Preview](preview.png)
+
+> Try it live: https://mincratype.vercel.app
+
 > A Minecraft-inspired typing test that lets you pick a timer and mine words with your keyboard while a blocky on-screen keyboard lights up with every keystroke, a playful personal take on the classic typing-test format wrapped in a Minecraft look.
 
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
