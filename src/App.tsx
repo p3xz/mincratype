@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTypingTest, isCodeMode, isDailyMode, isHindiMode, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
+import { useTypingTest, isCodeMode, isDailyMode, isGitMode, isHindiMode, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
 import { getAllBests, getBest, saveBest, getDailyBest, saveDailyBest, recordHistory } from "./lib/storage";
 import { finishChime, isMuted, keyClick, keyThock, setMuted } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
-import ModeSelect from "./components/ModeSelect";
+import StartScreen from "./components/StartScreen";
+import SettingsModal from "./components/SettingsModal";
 import TopBar from "./components/TopBar";
 import Footer from "./components/Footer";
 import PrivacyNote from "./components/PrivacyNote";
@@ -13,7 +14,7 @@ import Keyboard, { pillLabel } from "./components/Keyboard";
 
 export default function App() {
   const test = useTypingTest(30);
-  const [phase, setPhase] = useState<"menu" | "active">("menu");
+  const [phase, setPhase] = useState<"start" | "active">("start");
   const [bests, setBests] = useState(getAllBests);
   const [pressed, setPressed] = useState<Set<string>>(new Set());
   const [recent, setRecent] = useState<string[]>([]);
@@ -21,6 +22,17 @@ export default function App() {
   const [muted, setMutedState] = useState(isMuted());
   const [isNewBest, setIsNewBest] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  // Hidden input that summons the OS keyboard on touch devices. Phones have
+  // no physical keys, so this invisible field captures focus on Start (or on
+  // tap) and the keystrokes flow through the normal window key handler.
+  const inputRef = useRef<HTMLInputElement>(null);
+  const focusInput = useCallback(() => {
+    // Must run synchronously inside the user gesture or mobile browsers
+    // will refuse to open the keyboard.
+    inputRef.current?.focus({ preventScroll: true });
+  }, []);
 
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
@@ -28,6 +40,8 @@ export default function App() {
   statusRef.current = test.status;
   const privacyRef = useRef(showPrivacy);
   privacyRef.current = showPrivacy;
+  const settingsRef = useRef(showSettings);
+  settingsRef.current = showSettings;
 
   // The keyboard slides up on the first keystroke of a run and hides on reset.
   useEffect(() => {
@@ -78,6 +92,12 @@ export default function App() {
     test.restart();
   }, [test]);
 
+  /** Restart from a button tap: keeps the OS keyboard open on mobile. */
+  const restartAndFocus = useCallback(() => {
+    test.restart();
+    focusInput();
+  }, [test, focusInput]);
+
   /** Single routing point for physical and on-screen key presses. */
   const routeKey = useCallback(
     (key: string) => {
@@ -111,9 +131,14 @@ export default function App() {
         if (e.key === "Escape") setShowPrivacy(false);
         return;
       }
+      // Settings are a quiet page too: keys do not reach the test.
+      if (settingsRef.current) {
+        if (e.key === "Escape") setShowSettings(false);
+        return;
+      }
       pressVisual(e.code, true);
       if (e.key === "Tab") e.preventDefault();
-      if (phaseRef.current === "menu") {
+      if (phaseRef.current === "start") {
         // First key only opens the test; it is not typed.
         pushRecent(pillLabel(e.code, e.key));
         playFor(e.key);
@@ -145,7 +170,7 @@ export default function App() {
       if (!down) return;
       pushRecent(pillLabel(code, action ?? code));
       if (action === undefined) return; // pure modifier key
-      if (phaseRef.current === "menu") {
+      if (phaseRef.current === "start") {
         setPhase("active");
         return;
       }
@@ -162,11 +187,32 @@ export default function App() {
     });
   }, []);
 
-  const startTest = () => setPhase("active");
-  const exitToMenu = () => {
+  const startTest = () => {
+    focusInput();
+    setPhase("active");
+  };
+  const exitToStart = () => {
     test.restart();
+    inputRef.current?.blur();
     setBests(getAllBests());
-    setPhase("menu");
+    setPhase("start");
+  };
+
+  const openSettings = () => {
+    inputRef.current?.blur();
+    setShowSettings(true);
+  };
+  const closeSettings = () => {
+    setShowSettings(false);
+    focusInput();
+  };
+  const pickMode = (m: Parameters<typeof test.changeMode>[0]) => {
+    test.changeMode(m);
+    closeSettings();
+  };
+  const pickDifficulty = (d: Parameters<typeof test.changeDifficulty>[0]) => {
+    test.changeDifficulty(d);
+    closeSettings();
   };
 
   const live = test.getLive();
@@ -177,28 +223,35 @@ export default function App() {
       <div className="cave-grain" />
       <div className="cave-vignette" />
 
+      {/* Invisible capture field: summons the OS keyboard on touch devices.
+          It stays mounted across phases so focus survives the start tap. */}
+      <input
+        ref={inputRef}
+        className="kb-capture"
+        type="text"
+        aria-hidden="true"
+        tabIndex={-1}
+        autoCapitalize="none"
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
+      />
+
       <main className="flex-1 flex flex-col w-full max-w-5xl mx-auto px-4 sm:px-6">
         {showPrivacy ? (
           <PrivacyNote onClose={() => setShowPrivacy(false)} />
         ) : (
         <AnimatePresence mode="wait">
-          {phase === "menu" ? (
+          {phase === "start" ? (
             <motion.div
-              key="menu"
+              key="start"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="flex-1 flex items-center justify-center py-16"
+              className="flex-1 flex items-center justify-center py-10"
             >
-              <ModeSelect
-                mode={test.mode}
-                difficulty={test.difficulty}
-                onMode={test.changeMode}
-                onDifficulty={test.changeDifficulty}
-                onStart={startTest}
-                bests={bests}
-              />
+              <StartScreen bests={bests} onStart={startTest} />
             </motion.div>
           ) : (
             <motion.div
@@ -215,7 +268,7 @@ export default function App() {
                 total={
                   isZenMode(test.mode)
                     ? 1
-                    : isWordMode(test.mode) || isQuoteMode(test.mode) || isDailyMode(test.mode) || isCodeMode(test.mode) || isHindiMode(test.mode)
+                    : isWordMode(test.mode) || isQuoteMode(test.mode) || isDailyMode(test.mode) || isCodeMode(test.mode) || isHindiMode(test.mode) || isGitMode(test.mode)
                       ? test.words.length
                       : test.mode
                 }
@@ -224,11 +277,15 @@ export default function App() {
                 acc={live.acc}
                 muted={muted}
                 onToggleMute={toggleMute}
-                onRestart={test.restart}
-                onExit={exitToMenu}
+                onRestart={restartAndFocus}
+                onExit={exitToStart}
                 onEnd={test.finish}
+                onOpenSettings={openSettings}
               />
-              <div className="flex-1 flex flex-col justify-center py-8">
+              <div
+                className="flex-1 flex flex-col justify-center py-4 sm:py-8"
+                onPointerDown={focusInput}
+              >
                 {test.quoteAuthor && test.status !== "finished" && (
                   <p className="pixel-text text-[10px] text-stone-500 text-center mb-4">
                     {test.quoteAuthor.toUpperCase()}
@@ -250,8 +307,8 @@ export default function App() {
                           ? getDailyBest()
                           : getBest(test.result.mode)
                       }
-                      onRetry={test.restart}
-                      onMenu={exitToMenu}
+                      onRetry={restartAndFocus}
+                      onMenu={exitToStart}
                     />
                   )
                 )}
@@ -263,17 +320,34 @@ export default function App() {
                 onPress={onKbPress}
               />
               {test.status !== "finished" && (
-                <p className="mc-kb-hint text-center pt-4">
-                  {isZenMode(test.mode)
-                    ? "TAB TO RESTART - ENTER TO END"
-                    : "TAB TO RESTART"}
-                </p>
+                <>
+                  <p className="mc-kb-hint text-center pt-4 hidden sm:block">
+                    {isZenMode(test.mode)
+                      ? "TAB TO RESTART - ENTER TO END"
+                      : "TAB TO RESTART"}
+                  </p>
+                  <p className="mc-kb-hint text-center pt-4 sm:hidden">
+                    {isZenMode(test.mode)
+                      ? "TAP RETRY TO RESTART - TAP END TO FINISH"
+                      : "TAP RETRY TO RESTART"}
+                  </p>
+                </>
               )}
             </motion.div>
           )}
         </AnimatePresence>
         )}
       </main>
+
+      <SettingsModal
+        open={showSettings}
+        onClose={closeSettings}
+        mode={test.mode}
+        difficulty={test.difficulty}
+        onMode={pickMode}
+        onDifficulty={pickDifficulty}
+        bests={bests}
+      />
 
       <Footer onPrivacy={() => setShowPrivacy(true)} />
     </div>

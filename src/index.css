@@ -105,6 +105,8 @@ body {
   padding: 13px 22px;
   cursor: pointer;
   user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   box-shadow:
     inset 2px 2px 0 rgba(255, 255, 255, 0.35),
     inset -2px -2px 0 rgba(0, 0, 0, 0.4),
@@ -359,6 +361,40 @@ body {
   .mc-key .k-sub {
     font-size: 6px;
   }
+}
+
+/* very small phones: tighten further, drop the sub-labels */
+@media (max-width: 400px) {
+  .mc-frame {
+    padding: 6px;
+  }
+  .mc-key {
+    min-height: 38px;
+  }
+  .mc-key .k-label {
+    font-size: 6px;
+  }
+  .mc-key .k-sub {
+    display: none;
+  }
+}
+
+/* hidden capture field that summons the OS keyboard on touch devices.
+   It must stay rendered (never display:none) or mobile browsers refuse
+   to open the keyboard; opacity near zero keeps it invisible. The 16px
+   font size stops iOS from auto-zooming on focus. */
+.kb-capture {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  width: 4px;
+  height: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0.01;
+  font-size: 16px;
+  pointer-events: none;
 }
 
 /* Respect users who prefer reduced motion: kill CSS transitions and

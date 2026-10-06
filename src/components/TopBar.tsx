@@ -1,4 +1,4 @@
-import { isCodeMode, isDailyMode, isHindiMode, isQuoteMode, isWordMode, isWordPoolMode, isZenMode } from "../hooks/useTypingTest";
+import { isCodeMode, isDailyMode, isGitMode, isHindiMode, isQuoteMode, isWordMode, isWordPoolMode, isZenMode } from "../hooks/useTypingTest";
 import type { Difficulty, TestMode } from "../hooks/useTypingTest";
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
   onRestart: () => void;
   onExit: () => void;
   onEnd: () => void;
+  onOpenSettings: () => void;
 }
 
 export default function TopBar({
@@ -28,23 +29,24 @@ export default function TopBar({
   onRestart,
   onExit,
   onEnd,
+  onOpenSettings,
 }: Props) {
   const zen = isZenMode(mode);
-  const countMode = isWordMode(mode) || isQuoteMode(mode) || isDailyMode(mode) || isCodeMode(mode) || isHindiMode(mode);
+  const countMode = isWordMode(mode) || isQuoteMode(mode) || isDailyMode(mode) || isCodeMode(mode) || isHindiMode(mode) || isGitMode(mode);
   const showDiff = difficulty !== "all" && isWordPoolMode(mode);
   const pct = zen
     ? 100 // endless run, bar stays full
     : Math.max(0, Math.min(100, (timeLeft / total) * 100));
   return (
     <div className="w-full">
-      <div className="flex items-center gap-4 mb-3">
+      <div className="flex items-center gap-2 sm:gap-4 mb-3 flex-wrap">
         <span className="mc-logo text-sm cursor-pointer" onClick={onExit}>
           MINCRA<span className="logo-accent">TYPE</span>
         </span>
-        <div className="flex-1 xp-bar">
+        <div className="flex-1 xp-bar min-w-[80px]">
           <div className="xp-fill" style={{ width: `${pct}%` }} />
         </div>
-        <div className="flex items-center gap-4 font-type text-sm">
+        <div className="flex items-center gap-2 sm:gap-4 font-type text-xs sm:text-sm">
           <span className="pixel-text text-[10px] text-xp-400">
             {zen && "ZEN "}
             {Math.ceil(timeLeft)}
@@ -71,6 +73,9 @@ export default function TopBar({
         </button>
         <button onClick={onRestart} className="mc-btn mc-btn-sm" title="Restart (Tab)">
           RETRY
+        </button>
+        <button onClick={onOpenSettings} className="mc-btn mc-btn-sm" title="Test settings">
+          SETUP
         </button>
         {zen && (
           <button onClick={onEnd} className="mc-btn mc-btn-sm" title="End run, show stats (Enter)">

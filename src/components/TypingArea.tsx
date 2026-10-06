@@ -49,12 +49,12 @@ export default function TypingArea({ words, typed, wordIdx }: Props) {
   return (
     <div
       ref={containerRef}
-      className="relative h-[8.5rem] overflow-hidden select-none"
+      className="relative h-[7rem] sm:h-[8.5rem] overflow-hidden select-none"
     >
       <motion.div
         animate={{ y: shift }}
         transition={{ type: "spring", stiffness: 320, damping: 34 }}
-        className="text-[1.7rem] leading-[2.8rem] font-type tracking-wide"
+        className="text-[1.15rem] leading-[2rem] sm:text-[1.7rem] sm:leading-[2.8rem] font-type tracking-wide"
       >
         {words.map((w, wi) => {
           const t = typed[wi] ?? "";
