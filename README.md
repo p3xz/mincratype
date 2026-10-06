@@ -20,6 +20,8 @@ September 2026.
 
 ## What we used
 
+![TypeScript](https://skillicons.dev/icons?i=ts) ![React](https://skillicons.dev/icons?i=react) ![Vite](https://skillicons.dev/icons?i=vite) ![Tailwind CSS](https://skillicons.dev/icons?i=tailwind)
+
 - React 19 + TypeScript + Vite
 - Tailwind CSS v4
 - Framer Motion
