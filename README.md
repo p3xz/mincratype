@@ -43,8 +43,13 @@ npm run build    # production build (tsc + vite)
 | Tab | Restart test |
 | Enter | Retry on the results screen |
 
-## Tech
+## Tech Stack
 
-React + TypeScript + Vite, Tailwind CSS v4, Framer Motion, Web Audio API
+React 19 + TypeScript + Vite, Tailwind CSS v4, Framer Motion, Web Audio API
 (synthesized clicks and chime, no audio assets). Fonts: Press Start 2P for the
 pixel UI, JetBrains Mono for the typing text.
+
+## Credits
+
+Built by Namish Yadav ([@p3xz](https://github.com/p3xz)). A fan-made parody
+concept, not affiliated with Mojang or Microsoft.
