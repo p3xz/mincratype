@@ -4,21 +4,27 @@ interface Props {
   words: string[];
   typed: string[];
   wordIdx: number;
+  blind: boolean;
 }
 
 /** One word of the test. Memoized so a keystroke only re-renders the word
  *  being typed: every other word gets identical props (same word string,
- *  same typed string, same active flag) and skips rendering entirely. */
+ *  same typed string, same active flag) and skips rendering entirely.
+ *  When `hide` is set (blind mode on the active word), typed characters
+ *  render as untyped: no green/red feedback and no visible extras until
+ *  the word is done and it reveals its true colors. */
 const Word = memo(function Word({
   word,
   typed,
   active,
   index,
+  hide,
 }: {
   word: string;
   typed: string;
   active: boolean;
   index: number;
+  hide: boolean;
 }) {
   return (
     <span
@@ -28,14 +34,16 @@ const Word = memo(function Word({
     >
       {word.split("").map((ch, ci) => {
         let cls = "ch-untyped";
-        if (ci < typed.length) cls = typed[ci] === ch ? "ch-ok" : "ch-bad";
+        if (!hide && ci < typed.length)
+          cls = typed[ci] === ch ? "ch-ok" : "ch-bad";
         return (
           <span key={ci} data-pos={`${index}:${ci}`} className={cls}>
             {ch}
           </span>
         );
       })}
-      {typed.length > word.length &&
+      {!hide &&
+        typed.length > word.length &&
         typed
           .slice(word.length)
           .split("")
@@ -48,7 +56,7 @@ const Word = memo(function Word({
   );
 });
 
-export default function TypingArea({ words, typed, wordIdx }: Props) {
+export default function TypingArea({ words, typed, wordIdx, blind }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLDivElement>(null);
@@ -113,6 +121,7 @@ export default function TypingArea({ words, typed, wordIdx }: Props) {
             typed={typed[wi] ?? ""}
             active={wi === wordIdx}
             index={wi}
+            hide={blind && wi === wordIdx}
           />
         ))}
       </div>

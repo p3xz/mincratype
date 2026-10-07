@@ -6,8 +6,10 @@ import type { PersonalBest } from "../lib/storage";
 interface Props {
   mode: TestMode;
   difficulty: Difficulty;
+  blind: boolean;
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
+  onBlind: (b: boolean) => void;
   bests: Record<TestMode, PersonalBest | null>;
 }
 
@@ -97,7 +99,7 @@ function CustomTimer({
 
 /** All mode and difficulty controls. Lives inside the settings modal now;
  *  the start screen is just a logo and a START button. */
-export default function SettingsPanel({ mode, difficulty, onMode, onDifficulty, bests }: Props) {
+export default function SettingsPanel({ mode, difficulty, blind, onMode, onDifficulty, onBlind, bests }: Props) {
   return (
     <div className="flex flex-col items-center text-center">
       <div className="flex flex-col items-center gap-6">
@@ -185,6 +187,22 @@ export default function SettingsPanel({ mode, difficulty, onMode, onDifficulty, 
             ZEN
           </p>
           <ModeButtons modes={ZEN_MODES} active={mode} onMode={onMode} bests={bests} />
+        </div>
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            BLIND MODE
+          </p>
+          <button
+            onClick={() => onBlind(!blind)}
+            aria-pressed={blind}
+            className={`mc-btn mc-btn-sm ${blind ? "mc-btn-primary" : ""}`}
+          >
+            {blind ? "ON" : "OFF"}
+          </button>
+          <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
+            Hide typed feedback on the current word: no green, red, or extra
+            letters until the word is done.
+          </p>
         </div>
       </div>
     </div>

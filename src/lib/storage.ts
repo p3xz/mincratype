@@ -107,6 +107,27 @@ export function saveBest(mode: TestMode, wpm: number, acc: number): boolean {
   return true;
 }
 
+const blindModeKey = "mincratype-blind-mode";
+
+/** Reads the saved blind-mode setting, defaulting to off. */
+export function getBlindMode(): boolean {
+  try {
+    return localStorage.getItem(blindModeKey) === "1";
+  } catch {
+    // storage unavailable, ignore
+  }
+  return false;
+}
+
+/** Persists the blind-mode setting across sessions. */
+export function saveBlindMode(b: boolean): void {
+  try {
+    localStorage.setItem(blindModeKey, b ? "1" : "0");
+  } catch {
+    // storage unavailable, ignore
+  }
+}
+
 const MAX_HISTORY = 30;
 const historyKey = (mode: TestMode) => `mincratype-pbh-${mode}`;
 

@@ -216,6 +216,10 @@ export default function App() {
     test.changeDifficulty(d);
     closeSettings();
   };
+  const pickBlind = (b: boolean) => {
+    test.changeBlind(b);
+    closeSettings();
+  };
 
   const live = test.getLive();
 
@@ -298,6 +302,7 @@ export default function App() {
                     words={test.words}
                     typed={test.typed}
                     wordIdx={test.wordIdx}
+                    blind={test.blind}
                   />
                 ) : (
                   test.result && (
@@ -346,8 +351,10 @@ export default function App() {
         onClose={closeSettings}
         mode={test.mode}
         difficulty={test.difficulty}
+        blind={test.blind}
         onMode={pickMode}
         onDifficulty={pickDifficulty}
+        onBlind={pickBlind}
         bests={bests}
       />
 

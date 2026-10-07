@@ -5,7 +5,7 @@ import { GIT_WORDS } from "../data/gitWords";
 import { HINDI_WORDS } from "../data/hindiWords";
 import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
-import { getDifficulty, saveDifficulty } from "../lib/storage";
+import { getBlindMode, getDifficulty, saveBlindMode, saveDifficulty } from "../lib/storage";
 
 /** Timer modes are plain seconds: 15/30/60/120 are the presets, and users can
  *  also type a custom number of seconds. Everything that is not a word, quote,
@@ -264,6 +264,9 @@ function randomGitWords(n: number): string[] {
 export function useTypingTest(initialMode: TestMode = 30) {
   const [mode, setMode] = useState<TestMode>(initialMode);
   const [difficulty, setDifficulty] = useState<Difficulty>(() => getDifficulty());
+  /** Blind mode: typed feedback on the active word stays hidden until the
+   *  word is done. Pure display state, so no ref is needed. */
+  const [blind, setBlind] = useState<boolean>(() => getBlindMode());
   const [initial] = useState(() => genWords(initialMode, getDifficulty()));
   const [words, setWords] = useState<string[]>(initial.words);
   const [quoteAuthor, setQuoteAuthor] = useState<string | null>(initial.author);
@@ -517,6 +520,13 @@ export function useTypingTest(initialMode: TestMode = 30) {
     [restart]
   );
 
+  /** Toggling blind mode needs no restart: it only changes how the active
+   *  word renders, so the current run keeps going untouched. */
+  const changeBlind = useCallback((b: boolean) => {
+    setBlind(b);
+    saveBlindMode(b);
+  }, []);
+
   useEffect(() => stopTimer, [stopTimer]);
 
   const getLive = useCallback(() => {
@@ -534,6 +544,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
   return {
     mode,
     difficulty,
+    blind,
     words,
     quoteAuthor,
     typed,
@@ -545,6 +556,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     restart,
     changeMode,
     changeDifficulty,
+    changeBlind,
     finish,
     getLive,
   };

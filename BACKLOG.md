@@ -18,7 +18,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 - [x] Per-second WPM line chart on the results screen
 - [x] Key heatmap showing slowest / most-missed keys
 - [x] Personal-best history sparkline per mode
-- [ ] Blind mode: typed characters stay hidden until the word is done
+- [x] Blind mode: typed characters stay hidden until the word is done
 
 ## Customization
 - [ ] Caret styles: line, block, underline, outline

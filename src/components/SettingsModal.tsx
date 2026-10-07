@@ -8,8 +8,10 @@ interface Props {
   onClose: () => void;
   mode: TestMode;
   difficulty: Difficulty;
+  blind: boolean;
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
+  onBlind: (b: boolean) => void;
   bests: Record<TestMode, PersonalBest | null>;
 }
 
@@ -20,8 +22,10 @@ export default function SettingsModal({
   onClose,
   mode,
   difficulty,
+  blind,
   onMode,
   onDifficulty,
+  onBlind,
   bests,
 }: Props) {
   return (
@@ -59,8 +63,10 @@ export default function SettingsModal({
             <SettingsPanel
               mode={mode}
               difficulty={difficulty}
+              blind={blind}
               onMode={onMode}
               onDifficulty={onDifficulty}
+              onBlind={onBlind}
               bests={bests}
             />
           </motion.div>
