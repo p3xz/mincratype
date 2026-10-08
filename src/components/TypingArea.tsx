@@ -1,10 +1,12 @@
 import { memo, useLayoutEffect, useRef } from "react";
+import type { CaretStyle } from "../hooks/useTypingTest";
 
 interface Props {
   words: string[];
   typed: string[];
   wordIdx: number;
   blind: boolean;
+  caretStyle: CaretStyle;
 }
 
 /** One word of the test. Memoized so a keystroke only re-renders the word
@@ -56,7 +58,7 @@ const Word = memo(function Word({
   );
 });
 
-export default function TypingArea({ words, typed, wordIdx, blind }: Props) {
+export default function TypingArea({ words, typed, wordIdx, blind, caretStyle }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLDivElement>(null);
@@ -65,6 +67,9 @@ export default function TypingArea({ words, typed, wordIdx, blind }: Props) {
   // Doing this through React state would cost two extra renders plus two
   // framer-motion spring restarts on every keystroke, which is the typing
   // jank. A short CSS transition keeps the motion smooth for free.
+  // The caret's size also adapts to the style: block and outline need the
+  // next character's width, the underline becomes a short bar at the bottom
+  // of the line, and line stays the classic thin bar.
   useLayoutEffect(() => {
     const cont = containerRef.current;
     if (!cont) return;
@@ -74,12 +79,14 @@ export default function TypingArea({ words, typed, wordIdx, blind }: Props) {
     let x = 0;
     let y = 0;
     let h = 34;
+    let cw = 10;
     const anchor = cont.querySelector(`[data-pos="${wordIdx}:${slot}"]`);
     if (anchor) {
       const r = (anchor as HTMLElement).getBoundingClientRect();
       x = r.left - crect.left;
       y = r.top - crect.top;
       h = r.height;
+      cw = r.width;
     } else {
       const wend = cont.querySelector(`[data-wordend="${wordIdx}"]`);
       if (wend) {
@@ -87,12 +94,18 @@ export default function TypingArea({ words, typed, wordIdx, blind }: Props) {
         x = r.right - crect.left;
         y = r.top - crect.top;
         h = r.height;
+        // No next character to measure at the end of a word: use the
+        // word's first character width as the caret width instead.
+        const first = cont.querySelector(`[data-pos="${wordIdx}:0"]`);
+        cw = first ? (first as HTMLElement).getBoundingClientRect().width : 10;
       }
     }
     const caret = caretRef.current;
     if (caret) {
-      caret.style.transform = `translate(${x}px, ${y}px)`;
-      caret.style.height = `${h}px`;
+      const underline = caretStyle === "underline";
+      caret.style.transform = `translate(${x}px, ${underline ? y + h - 4 : y}px)`;
+      caret.style.height = underline ? "4px" : `${h}px`;
+      caret.style.width = caretStyle === "line" ? "3px" : `${cw}px`;
     }
 
     const wordEl = cont.querySelector(`[data-word="${wordIdx}"]`);
@@ -103,7 +116,7 @@ export default function TypingArea({ words, typed, wordIdx, blind }: Props) {
       const shift = Math.min(0, targetTop - r.top);
       wordsEl.style.transform = `translateY(${shift}px)`;
     }
-  }, [words, typed, wordIdx]);
+  }, [words, typed, wordIdx, caretStyle]);
 
   return (
     <div
@@ -125,7 +138,7 @@ export default function TypingArea({ words, typed, wordIdx, blind }: Props) {
           />
         ))}
       </div>
-      <div ref={caretRef} className="type-caret" />
+      <div ref={caretRef} className="type-caret" data-style={caretStyle} />
     </div>
   );
 }

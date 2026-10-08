@@ -220,6 +220,10 @@ export default function App() {
     test.changeBlind(b);
     closeSettings();
   };
+  const pickCaretStyle = (c: Parameters<typeof test.changeCaretStyle>[0]) => {
+    test.changeCaretStyle(c);
+    closeSettings();
+  };
 
   const live = test.getLive();
 
@@ -303,6 +307,7 @@ export default function App() {
                     typed={test.typed}
                     wordIdx={test.wordIdx}
                     blind={test.blind}
+                    caretStyle={test.caretStyle}
                   />
                 ) : (
                   test.result && (
@@ -352,9 +357,11 @@ export default function App() {
         mode={test.mode}
         difficulty={test.difficulty}
         blind={test.blind}
+        caretStyle={test.caretStyle}
         onMode={pickMode}
         onDifficulty={pickDifficulty}
         onBlind={pickBlind}
+        onCaret={pickCaretStyle}
         bests={bests}
       />
 

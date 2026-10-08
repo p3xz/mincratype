@@ -21,7 +21,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 - [x] Blind mode: typed characters stay hidden until the word is done
 
 ## Customization
-- [ ] Caret styles: line, block, underline, outline
+- [x] Caret styles: line, block, underline, outline
 - [ ] Theme variants: Nether (red), End (purple), Deep Dark
 - [ ] Keyboard sound packs (clacky, thocky, silent-ish)
 - [ ] Toggle for smooth caret vs instant caret

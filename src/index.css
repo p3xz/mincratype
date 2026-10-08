@@ -330,8 +330,71 @@ body {
   /* Position is written directly to the DOM every keystroke (see
      TypingArea). A short GPU-cheap transition keeps it gliding instead
      of jumping, with none of the per-keystroke spring cost. */
-  transition: transform 70ms linear, height 70ms linear;
+  transition: transform 70ms linear, height 70ms linear, width 70ms linear;
   will-change: transform;
+}
+
+/* Caret style variants. TypingArea sizes the box per style (block and
+   outline span the next character's width, underline is a short bar at
+   the bottom of the line); these rules only change how the box paints.
+   The "line" style is the default look above. */
+.type-caret[data-style="block"] {
+  background: rgba(126, 252, 32, 0.4);
+  box-shadow: none;
+}
+.type-caret[data-style="outline"] {
+  background: transparent;
+  border: 2px solid var(--color-xp-500);
+  box-sizing: border-box;
+  box-shadow: 0 0 8px rgba(126, 252, 32, 0.55);
+}
+.type-caret[data-style="underline"] {
+  border-radius: 2px;
+}
+
+/* Mini caret preview in the settings picker: one glanceable shape per
+   style. Line is a thin bar, block a filled square, underline a bottom
+   bar, outline a hollow square. */
+.caret-preview {
+  display: inline-block;
+  width: 12px;
+  height: 16px;
+  position: relative;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.caret-preview::before {
+  content: "";
+  position: absolute;
+  background: var(--color-xp-500);
+}
+.caret-preview[data-style="line"]::before {
+  left: 5px;
+  top: 0;
+  width: 3px;
+  height: 16px;
+}
+.caret-preview[data-style="block"]::before {
+  left: 0;
+  top: 0;
+  width: 12px;
+  height: 16px;
+  opacity: 0.6;
+}
+.caret-preview[data-style="underline"]::before {
+  left: 0;
+  bottom: 0;
+  width: 12px;
+  height: 4px;
+}
+.caret-preview[data-style="outline"]::before {
+  left: 0;
+  top: 0;
+  width: 12px;
+  height: 16px;
+  background: transparent;
+  border: 2px solid var(--color-xp-500);
+  box-sizing: border-box;
 }
 
 .type-words {

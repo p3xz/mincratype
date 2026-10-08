@@ -5,7 +5,7 @@ import { GIT_WORDS } from "../data/gitWords";
 import { HINDI_WORDS } from "../data/hindiWords";
 import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
-import { getBlindMode, getDifficulty, saveBlindMode, saveDifficulty } from "../lib/storage";
+import { getBlindMode, getCaretStyle, getDifficulty, saveBlindMode, saveCaretStyle, saveDifficulty } from "../lib/storage";
 
 /** Timer modes are plain seconds: 15/30/60/120 are the presets, and users can
  *  also type a custom number of seconds. Everything that is not a word, quote,
@@ -14,6 +14,13 @@ export type TestMode = number | "w25" | "w50" | "w100" | "quote" | "zen" | "dail
 export type TestStatus = "idle" | "running" | "finished";
 
 export type WordMode = "w25" | "w50" | "w100";
+
+/** Caret styles: a thin line, a full block over the next character, a short
+ *  underline bar, or an outline box around the next character. */
+export type CaretStyle = "line" | "block" | "underline" | "outline";
+
+/** Every caret style, in picker order. */
+export const CARET_STYLES: CaretStyle[] = ["line", "block", "underline", "outline"];
 
 /** Difficulty filter for word-list modes: all words, short words only
  *  (1-4 letters), or long words only (5+ letters). */
@@ -267,6 +274,8 @@ export function useTypingTest(initialMode: TestMode = 30) {
   /** Blind mode: typed feedback on the active word stays hidden until the
    *  word is done. Pure display state, so no ref is needed. */
   const [blind, setBlind] = useState<boolean>(() => getBlindMode());
+  /** Caret style: pure display state, so no ref is needed. */
+  const [caretStyle, setCaretStyle] = useState<CaretStyle>(() => getCaretStyle());
   const [initial] = useState(() => genWords(initialMode, getDifficulty()));
   const [words, setWords] = useState<string[]>(initial.words);
   const [quoteAuthor, setQuoteAuthor] = useState<string | null>(initial.author);
@@ -527,6 +536,13 @@ export function useTypingTest(initialMode: TestMode = 30) {
     saveBlindMode(b);
   }, []);
 
+  /** Switching caret style needs no restart: it only changes how the caret
+   *  renders, so the current run keeps going untouched. */
+  const changeCaretStyle = useCallback((c: CaretStyle) => {
+    setCaretStyle(c);
+    saveCaretStyle(c);
+  }, []);
+
   useEffect(() => stopTimer, [stopTimer]);
 
   const getLive = useCallback(() => {
@@ -545,6 +561,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     mode,
     difficulty,
     blind,
+    caretStyle,
     words,
     quoteAuthor,
     typed,
@@ -557,6 +574,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     changeMode,
     changeDifficulty,
     changeBlind,
+    changeCaretStyle,
     finish,
     getLive,
   };

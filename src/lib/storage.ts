@@ -1,4 +1,4 @@
-import type { Difficulty, TestMode } from "../hooks/useTypingTest";
+import type { CaretStyle, Difficulty, TestMode } from "../hooks/useTypingTest";
 import { dailyKey } from "../hooks/useTypingTest";
 
 export interface PersonalBest {
@@ -123,6 +123,28 @@ export function getBlindMode(): boolean {
 export function saveBlindMode(b: boolean): void {
   try {
     localStorage.setItem(blindModeKey, b ? "1" : "0");
+  } catch {
+    // storage unavailable, ignore
+  }
+}
+
+const caretStyleKey = "mincratype-caret-style";
+
+/** Reads the saved caret style, defaulting to "line". */
+export function getCaretStyle(): CaretStyle {
+  try {
+    const raw = localStorage.getItem(caretStyleKey);
+    if (raw === "line" || raw === "block" || raw === "underline" || raw === "outline") return raw;
+  } catch {
+    // storage unavailable, ignore
+  }
+  return "line";
+}
+
+/** Persists the caret style across sessions. */
+export function saveCaretStyle(c: CaretStyle): void {
+  try {
+    localStorage.setItem(caretStyleKey, c);
   } catch {
     // storage unavailable, ignore
   }
