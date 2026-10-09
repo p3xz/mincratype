@@ -1,4 +1,4 @@
-import type { CaretStyle, Difficulty, TestMode } from "../hooks/useTypingTest";
+import type { CaretStyle, Difficulty, TestMode, Theme } from "../hooks/useTypingTest";
 import { dailyKey } from "../hooks/useTypingTest";
 
 export interface PersonalBest {
@@ -145,6 +145,30 @@ export function getCaretStyle(): CaretStyle {
 export function saveCaretStyle(c: CaretStyle): void {
   try {
     localStorage.setItem(caretStyleKey, c);
+  } catch {
+    // storage unavailable, ignore
+  }
+}
+
+const themeKey = "mincratype-theme";
+
+const THEME_IDS: Theme[] = ["overworld", "nether", "end", "deepdark"];
+
+/** Reads the saved theme, defaulting to "overworld". */
+export function getTheme(): Theme {
+  try {
+    const raw = localStorage.getItem(themeKey);
+    if (raw && (THEME_IDS as string[]).includes(raw)) return raw as Theme;
+  } catch {
+    // storage unavailable, ignore
+  }
+  return "overworld";
+}
+
+/** Persists the theme across sessions. */
+export function saveTheme(t: Theme): void {
+  try {
+    localStorage.setItem(themeKey, t);
   } catch {
     // storage unavailable, ignore
   }

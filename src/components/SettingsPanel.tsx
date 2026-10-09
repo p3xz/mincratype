@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { CARET_STYLES, DIFFICULTIES, dailyKey, difficultyLabel, difficultyShort, isWordPoolMode, modeShort } from "../hooks/useTypingTest";
-import type { CaretStyle, Difficulty, TestMode } from "../hooks/useTypingTest";
+import { CARET_STYLES, DIFFICULTIES, THEMES, dailyKey, difficultyLabel, difficultyShort, isWordPoolMode, modeShort } from "../hooks/useTypingTest";
+import type { CaretStyle, Difficulty, TestMode, Theme } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
 
 interface Props {
@@ -8,10 +8,12 @@ interface Props {
   difficulty: Difficulty;
   blind: boolean;
   caretStyle: CaretStyle;
+  theme: Theme;
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
   onBlind: (b: boolean) => void;
   onCaret: (c: CaretStyle) => void;
+  onTheme: (t: Theme) => void;
   bests: Record<TestMode, PersonalBest | null>;
 }
 
@@ -101,7 +103,7 @@ function CustomTimer({
 
 /** All mode and difficulty controls. Lives inside the settings modal now;
  *  the start screen is just a logo and a START button. */
-export default function SettingsPanel({ mode, difficulty, blind, caretStyle, onMode, onDifficulty, onBlind, onCaret, bests }: Props) {
+export default function SettingsPanel({ mode, difficulty, blind, caretStyle, theme, onMode, onDifficulty, onBlind, onCaret, onTheme, bests }: Props) {
   return (
     <div className="flex flex-col items-center text-center">
       <div className="flex flex-col items-center gap-6">
@@ -210,6 +212,32 @@ export default function SettingsPanel({ mode, difficulty, blind, caretStyle, onM
           <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
             Pick the caret: a thin line, a block over the next character, a
             short underline, or an outline box.
+          </p>
+        </div>
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            THEME
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {THEMES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => onTheme(t.id)}
+                aria-pressed={theme === t.id}
+                className={`mc-btn mc-btn-sm ${theme === t.id ? "mc-btn-primary" : ""}`}
+              >
+                <span
+                  className="theme-swatch"
+                  style={{ background: t.swatch }}
+                  aria-hidden="true"
+                />
+                {t.label.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
+            Recolor the whole test: Overworld greens, Nether reds, End
+            purples, or Deep Dark teal.
           </p>
         </div>
         <div>

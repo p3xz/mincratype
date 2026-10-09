@@ -19,9 +19,88 @@
   --color-xp-300: #c6ff7a;
   --color-xp-400: #a4ff4f;
   --color-xp-500: #7efc20;
+  --color-xp-600: #57b312;
 
   --color-dirt-500: #8a5a33;
   --color-dirt-700: #5d3b20;
+
+  /* soft chart fill + glow tints, recolored per theme below */
+  --color-grass-soft: rgba(156, 204, 101, 0.16);
+  --glow-rgb: 124, 179, 66;
+  --press-glow: rgba(126, 252, 32, 0.55);
+}
+
+/* ---------- theme variants ----------
+   Overworld (the default greens) is the base above. Each variant re-maps
+   the cave/grasses/XP tokens plus the glow tints; everything themed
+   (Tailwind utilities and var() rules) recolors automatically. */
+[data-theme="nether"] {
+  --color-cave-950: #150a08;
+  --color-cave-900: #1d0e0a;
+  --color-cave-850: #231109;
+  --color-cave-800: #2e1610;
+  --color-cave-700: #3d1e14;
+
+  --color-grass-300: #ffc9a8;
+  --color-grass-400: #ff9a5e;
+  --color-grass-500: #f0662e;
+  --color-grass-600: #c2431c;
+  --color-grass-700: #8f2c12;
+
+  --color-xp-300: #ffd9b0;
+  --color-xp-400: #ffab6b;
+  --color-xp-500: #ff7a3d;
+  --color-xp-600: #d14e1c;
+
+  --color-grass-soft: rgba(255, 154, 94, 0.16);
+  --glow-rgb: 240, 102, 46;
+  --press-glow: rgba(255, 122, 61, 0.55);
+}
+
+[data-theme="end"] {
+  --color-cave-950: #0f0a14;
+  --color-cave-900: #150e1c;
+  --color-cave-850: #191223;
+  --color-cave-800: #211830;
+  --color-cave-700: #2d2142;
+
+  --color-grass-300: #e3c8ff;
+  --color-grass-400: #c99aff;
+  --color-grass-500: #a86bf0;
+  --color-grass-600: #8448c9;
+  --color-grass-700: #5e318f;
+
+  --color-xp-300: #f0dcff;
+  --color-xp-400: #dcaeff;
+  --color-xp-500: #c07df5;
+  --color-xp-600: #9556d4;
+
+  --color-grass-soft: rgba(201, 154, 255, 0.16);
+  --glow-rgb: 168, 107, 240;
+  --press-glow: rgba(192, 125, 245, 0.55);
+}
+
+[data-theme="deepdark"] {
+  --color-cave-950: #070b11;
+  --color-cave-900: #0a0f17;
+  --color-cave-850: #0d131d;
+  --color-cave-800: #121927;
+  --color-cave-700: #1a2233;
+
+  --color-grass-300: #a9f2e4;
+  --color-grass-400: #62e6cf;
+  --color-grass-500: #2cc9ad;
+  --color-grass-600: #1d9c87;
+  --color-grass-700: #146e5f;
+
+  --color-xp-300: #c8fff3;
+  --color-xp-400: #8ff5de;
+  --color-xp-500: #3fe0bd;
+  --color-xp-600: #1fb596;
+
+  --color-grass-soft: rgba(98, 230, 207, 0.16);
+  --glow-rgb: 44, 201, 173;
+  --press-glow: rgba(63, 224, 189, 0.55);
 }
 
 html,
@@ -40,7 +119,7 @@ body,
 
 body {
   margin: 0;
-  background-color: #0d0b09;
+  background-color: var(--color-cave-950);
   color: #e8e4da;
   font-family: var(--font-type);
   overflow-x: hidden;
@@ -53,9 +132,9 @@ body {
   inset: 0;
   z-index: -2;
   background:
-    radial-gradient(1200px 700px at 50% -10%, rgba(124, 179, 66, 0.06), transparent 60%),
-    radial-gradient(900px 600px at 85% 110%, rgba(124, 179, 66, 0.04), transparent 60%),
-    #0d0b09;
+    radial-gradient(1200px 700px at 50% -10%, rgba(var(--glow-rgb), 0.06), transparent 60%),
+    radial-gradient(900px 600px at 85% 110%, rgba(var(--glow-rgb), 0.04), transparent 60%),
+    var(--color-cave-950);
 }
 .cave-grain {
   position: fixed;
@@ -90,7 +169,7 @@ body {
     0 4px 0 #2c4a15,
     4px 0 0 #2c4a15,
     4px 4px 0 #101010,
-    0 0 26px rgba(124, 179, 66, 0.45);
+    0 0 26px rgba(var(--glow-rgb), 0.45);
 }
 
 /* ---------- minecraft buttons ---------- */
@@ -124,7 +203,7 @@ body {
     0 0 0 #0b0b0b;
 }
 .mc-btn-primary {
-  background: linear-gradient(#93d653, #6da33a 45%, #557f2c);
+  background: linear-gradient(var(--color-grass-400), var(--color-grass-500) 45%, var(--color-grass-600));
 }
 .mc-btn-sm {
   font-size: 9px;
@@ -141,7 +220,7 @@ body {
 }
 .xp-fill {
   height: 100%;
-  background: linear-gradient(#c6ff7a, #7efc20 55%, #57b312);
+  background: linear-gradient(var(--color-xp-300), var(--color-xp-500) 55%, var(--color-xp-600));
   position: relative;
   transition: width 200ms linear;
 }
@@ -168,7 +247,7 @@ body {
   box-shadow: inset 0 -2px 0 rgba(124, 179, 66, 0.55);
 }
 .ch-untyped { color: #6e6a61; }
-.ch-ok { color: #b9f27e; }
+.ch-ok { color: var(--color-xp-300); }
 .ch-bad { color: #ff6b5e; }
 .ch-extra {
   color: #c22f22;
@@ -282,10 +361,10 @@ body {
     inset 2px 2px 0 rgba(255, 255, 255, 0.1),
     inset -2px -2px 0 rgba(0, 0, 0, 0.5),
     0 0 0 #0a0908,
-    0 0 16px rgba(126, 252, 32, 0.55);
+    0 0 16px var(--press-glow);
 }
 .mc-key[data-pressed="true"] .k-label {
-  color: #d9ffb0;
+  color: var(--color-xp-300);
 }
 
 /* ---------- pressed-key pills: inventory slots ---------- */
@@ -395,6 +474,17 @@ body {
   background: transparent;
   border: 2px solid var(--color-xp-500);
   box-sizing: border-box;
+}
+
+/* Swatch preview in the theme picker: a small colored block per theme. */
+.theme-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border: 2px solid rgba(0, 0, 0, 0.6);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .type-words {

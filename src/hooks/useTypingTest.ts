@@ -5,7 +5,7 @@ import { GIT_WORDS } from "../data/gitWords";
 import { HINDI_WORDS } from "../data/hindiWords";
 import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
-import { getBlindMode, getCaretStyle, getDifficulty, saveBlindMode, saveCaretStyle, saveDifficulty } from "../lib/storage";
+import { getBlindMode, getCaretStyle, getDifficulty, getTheme, saveBlindMode, saveCaretStyle, saveDifficulty, saveTheme } from "../lib/storage";
 
 /** Timer modes are plain seconds: 15/30/60/120 are the presets, and users can
  *  also type a custom number of seconds. Everything that is not a word, quote,
@@ -21,6 +21,18 @@ export type CaretStyle = "line" | "block" | "underline" | "outline";
 
 /** Every caret style, in picker order. */
 export const CARET_STYLES: CaretStyle[] = ["line", "block", "underline", "outline"];
+
+/** Theme variants: the default Overworld greens, plus Nether reds, End
+ *  purples, and Deep Dark teal. Pure display state, like caret style. */
+export type Theme = "overworld" | "nether" | "end" | "deepdark";
+
+/** Every theme, in picker order, with a swatch color for the picker. */
+export const THEMES: { id: Theme; label: string; blurb: string; swatch: string }[] = [
+  { id: "overworld", label: "Overworld", blurb: "Classic grass-green days.", swatch: "#7efc20" },
+  { id: "nether", label: "Nether", blurb: "Lava reds and ember orange.", swatch: "#ff7a3d" },
+  { id: "end", label: "The End", blurb: "Chorus purple over the void.", swatch: "#c07df5" },
+  { id: "deepdark", label: "Deep Dark", blurb: "Sculk teal in the dark.", swatch: "#3fe0bd" },
+];
 
 /** Difficulty filter for word-list modes: all words, short words only
  *  (1-4 letters), or long words only (5+ letters). */
@@ -276,6 +288,8 @@ export function useTypingTest(initialMode: TestMode = 30) {
   const [blind, setBlind] = useState<boolean>(() => getBlindMode());
   /** Caret style: pure display state, so no ref is needed. */
   const [caretStyle, setCaretStyle] = useState<CaretStyle>(() => getCaretStyle());
+  /** Theme: pure display state, so no ref is needed. */
+  const [theme, setTheme] = useState<Theme>(() => getTheme());
   const [initial] = useState(() => genWords(initialMode, getDifficulty()));
   const [words, setWords] = useState<string[]>(initial.words);
   const [quoteAuthor, setQuoteAuthor] = useState<string | null>(initial.author);
@@ -543,6 +557,13 @@ export function useTypingTest(initialMode: TestMode = 30) {
     saveCaretStyle(c);
   }, []);
 
+  /** Switching theme needs no restart: it only recolors, so the current
+   *  run keeps going untouched. */
+  const changeTheme = useCallback((t: Theme) => {
+    setTheme(t);
+    saveTheme(t);
+  }, []);
+
   useEffect(() => stopTimer, [stopTimer]);
 
   const getLive = useCallback(() => {
@@ -562,6 +583,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     difficulty,
     blind,
     caretStyle,
+    theme,
     words,
     quoteAuthor,
     typed,
@@ -575,6 +597,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     changeDifficulty,
     changeBlind,
     changeCaretStyle,
+    changeTheme,
     finish,
     getLive,
   };

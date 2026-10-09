@@ -224,6 +224,16 @@ export default function App() {
     test.changeCaretStyle(c);
     closeSettings();
   };
+  const pickTheme = (t: Parameters<typeof test.changeTheme>[0]) => {
+    test.changeTheme(t);
+    closeSettings();
+  };
+
+  // The theme recolors the whole page through CSS variables, so it lives
+  // on the document root where every var() lookup can reach it.
+  useEffect(() => {
+    document.documentElement.dataset.theme = test.theme;
+  }, [test.theme]);
 
   const live = test.getLive();
 
@@ -358,10 +368,12 @@ export default function App() {
         difficulty={test.difficulty}
         blind={test.blind}
         caretStyle={test.caretStyle}
+        theme={test.theme}
         onMode={pickMode}
         onDifficulty={pickDifficulty}
         onBlind={pickBlind}
         onCaret={pickCaretStyle}
+        onTheme={pickTheme}
         bests={bests}
       />
 

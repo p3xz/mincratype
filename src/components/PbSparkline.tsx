@@ -40,7 +40,7 @@ export default function PbSparkline({ values }: Props) {
         x2={W - PAD}
         y1={y(max)}
         y2={y(max)}
-        stroke="#9ccc65"
+        stroke="var(--color-grass-400)"
         strokeWidth={1}
         strokeDasharray="5 4"
         opacity={0.5}
@@ -48,7 +48,7 @@ export default function PbSparkline({ values }: Props) {
       <path
         d={d}
         fill="none"
-        stroke="#9ccc65"
+        stroke="var(--color-grass-400)"
         strokeWidth={2.5}
         strokeLinejoin="miter"
         shapeRendering="crispEdges"
@@ -60,8 +60,8 @@ export default function PbSparkline({ values }: Props) {
           y={y(v) - 2.5}
           width={5}
           height={5}
-          fill={i === bestIdx ? "#9ccc65" : "#0d0b09"}
-          stroke="#9ccc65"
+          fill={i === bestIdx ? "var(--color-grass-400)" : "var(--color-cave-950)"}
+          stroke="var(--color-grass-400)"
           strokeWidth={i === bestIdx ? 0 : 2}
         />
       ))}

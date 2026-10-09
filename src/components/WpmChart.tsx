@@ -82,11 +82,11 @@ export default function WpmChart({ data }: Props) {
       >
         WPM
       </text>
-      <path d={fill} fill="rgba(156, 204, 101, 0.16)" stroke="none" />
+      <path d={fill} fill="var(--color-grass-soft)" stroke="none" />
       <path
         d={d}
         fill="none"
-        stroke="#9ccc65"
+        stroke="var(--color-grass-400)"
         strokeWidth={3}
         strokeLinejoin="miter"
         shapeRendering="crispEdges"
@@ -98,8 +98,8 @@ export default function WpmChart({ data }: Props) {
           y={y(v) - 3}
           width={6}
           height={6}
-          fill="#0d0b09"
-          stroke="#9ccc65"
+          fill="var(--color-cave-950)"
+          stroke="var(--color-grass-400)"
           strokeWidth={2}
         />
       ))}
