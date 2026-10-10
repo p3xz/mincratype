@@ -2,6 +2,8 @@ import { useState } from "react";
 import { CARET_STYLES, DIFFICULTIES, THEMES, dailyKey, difficultyLabel, difficultyShort, isWordPoolMode, modeShort } from "../hooks/useTypingTest";
 import type { CaretStyle, Difficulty, TestMode, Theme } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
+import { SOUND_PACKS } from "../lib/sound";
+import type { SoundPack } from "../lib/sound";
 
 interface Props {
   mode: TestMode;
@@ -9,11 +11,13 @@ interface Props {
   blind: boolean;
   caretStyle: CaretStyle;
   theme: Theme;
+  soundPack: SoundPack;
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
   onBlind: (b: boolean) => void;
   onCaret: (c: CaretStyle) => void;
   onTheme: (t: Theme) => void;
+  onSoundPack: (p: SoundPack) => void;
   bests: Record<TestMode, PersonalBest | null>;
 }
 
@@ -103,7 +107,7 @@ function CustomTimer({
 
 /** All mode and difficulty controls. Lives inside the settings modal now;
  *  the start screen is just a logo and a START button. */
-export default function SettingsPanel({ mode, difficulty, blind, caretStyle, theme, onMode, onDifficulty, onBlind, onCaret, onTheme, bests }: Props) {
+export default function SettingsPanel({ mode, difficulty, blind, caretStyle, theme, soundPack, onMode, onDifficulty, onBlind, onCaret, onTheme, onSoundPack, bests }: Props) {
   return (
     <div className="flex flex-col items-center text-center">
       <div className="flex flex-col items-center gap-6">
@@ -238,6 +242,28 @@ export default function SettingsPanel({ mode, difficulty, blind, caretStyle, the
           <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
             Recolor the whole test: Overworld greens, Nether reds, End
             purples, or Deep Dark teal.
+          </p>
+        </div>
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            SOUND PACK
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {SOUND_PACKS.map((p) => (
+              <button
+                key={p}
+                onClick={() => onSoundPack(p)}
+                aria-pressed={soundPack === p}
+                className={`mc-btn mc-btn-sm ${soundPack === p ? "mc-btn-primary" : ""}`}
+              >
+                {p.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
+            Clacky is bright and sharp, thocky is deep and creamy, silent
+            is a barely-there tap for quiet rooms. Picking a pack plays a
+            preview.
           </p>
         </div>
         <div>

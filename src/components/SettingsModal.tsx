@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import SettingsPanel from "./SettingsPanel";
 import type { CaretStyle, Difficulty, TestMode, Theme } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
+import type { SoundPack } from "../lib/sound";
 
 interface Props {
   open: boolean;
@@ -11,11 +12,13 @@ interface Props {
   blind: boolean;
   caretStyle: CaretStyle;
   theme: Theme;
+  soundPack: SoundPack;
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
   onBlind: (b: boolean) => void;
   onCaret: (c: CaretStyle) => void;
   onTheme: (t: Theme) => void;
+  onSoundPack: (p: SoundPack) => void;
   bests: Record<TestMode, PersonalBest | null>;
 }
 
@@ -29,11 +32,13 @@ export default function SettingsModal({
   blind,
   caretStyle,
   theme,
+  soundPack,
   onMode,
   onDifficulty,
   onBlind,
   onCaret,
   onTheme,
+  onSoundPack,
   bests,
 }: Props) {
   return (
@@ -74,11 +79,13 @@ export default function SettingsModal({
               blind={blind}
               caretStyle={caretStyle}
               theme={theme}
+              soundPack={soundPack}
               onMode={onMode}
               onDifficulty={onDifficulty}
               onBlind={onBlind}
               onCaret={onCaret}
               onTheme={onTheme}
+              onSoundPack={onSoundPack}
               bests={bests}
             />
           </motion.div>

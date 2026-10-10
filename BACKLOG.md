@@ -23,7 +23,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 ## Customization
 - [x] Caret styles: line, block, underline, outline
 - [x] Theme variants: Nether (red), End (purple), Deep Dark
-- [ ] Keyboard sound packs (clacky, thocky, silent-ish)
+- [x] Keyboard sound packs (clacky, thocky, silent-ish)
 - [ ] Toggle for smooth caret vs instant caret
 
 ## Social and sharing

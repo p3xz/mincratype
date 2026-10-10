@@ -4,8 +4,17 @@
 let ctx: AudioContext | null = null;
 let muted = false;
 
+export type SoundPack = "clacky" | "thocky" | "silent";
+export const SOUND_PACKS: SoundPack[] = ["clacky", "thocky", "silent"];
+
+let pack: SoundPack = "clacky";
+
 try {
   muted = localStorage.getItem("mincratype-muted") === "1";
+  const stored = localStorage.getItem("mincratype-soundpack");
+  if (stored === "clacky" || stored === "thocky" || stored === "silent") {
+    pack = stored;
+  }
 } catch {
   muted = false;
 }
@@ -28,6 +37,19 @@ function ac(): AudioContext | null {
 
 export function isMuted(): boolean {
   return muted;
+}
+
+export function getSoundPack(): SoundPack {
+  return pack;
+}
+
+export function setSoundPack(p: SoundPack): void {
+  pack = p;
+  try {
+    localStorage.setItem("mincratype-soundpack", p);
+  } catch {
+    // ignore
+  }
 }
 
 /** Create/resume the AudioContext early (inside a user gesture) so the
@@ -67,15 +89,41 @@ function blip(
   o.stop(t + dur + 0.03);
 }
 
-/** Short mechanical click for letter keys. Slight pitch wobble per press. */
+/** Short mechanical click for letter keys. Timbre comes from the sound pack. */
 export function keyClick(): void {
-  blip(1700 + Math.random() * 700, 0.035, "square", 0.045);
+  switch (pack) {
+    case "clacky":
+      // Bright, sharp plastic clack.
+      blip(1700 + Math.random() * 700, 0.035, "square", 0.045);
+      break;
+    case "thocky":
+      // Deep, creamy thock with a soft body underneath.
+      blip(480 + Math.random() * 160, 0.05, "triangle", 0.085);
+      blip(220, 0.07, "sine", 0.07, 0.005);
+      break;
+    case "silent":
+      // Barely-there soft tap for quiet rooms.
+      blip(1200 + Math.random() * 400, 0.03, "sine", 0.015);
+      break;
+  }
 }
 
-/** Deeper thock for space / enter / backspace. */
+/** Deeper thock for space / enter / backspace. Timbre comes from the sound pack. */
 export function keyThock(): void {
-  blip(300, 0.06, "triangle", 0.11);
-  blip(150, 0.09, "sine", 0.1, 0.008);
+  switch (pack) {
+    case "clacky":
+      blip(300, 0.06, "triangle", 0.11);
+      blip(150, 0.09, "sine", 0.1, 0.008);
+      break;
+    case "thocky":
+      blip(190, 0.09, "triangle", 0.12);
+      blip(95, 0.12, "sine", 0.11, 0.01);
+      break;
+    case "silent":
+      blip(300, 0.06, "sine", 0.03);
+      blip(150, 0.08, "sine", 0.025, 0.008);
+      break;
+  }
 }
 
 /** Original XP-orb-like ascending arpeggio for test finish. */

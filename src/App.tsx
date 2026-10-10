@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTypingTest, isCodeMode, isDailyMode, isGitMode, isHindiMode, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
 import { getAllBests, getBest, saveBest, getDailyBest, saveDailyBest, recordHistory } from "./lib/storage";
-import { finishChime, isMuted, keyClick, keyThock, setMuted, warmAudio } from "./lib/sound";
+import { finishChime, getSoundPack, isMuted, keyClick, keyThock, setMuted, setSoundPack, warmAudio } from "./lib/sound";
+import type { SoundPack } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
 import StartScreen from "./components/StartScreen";
 import SettingsModal from "./components/SettingsModal";
@@ -20,6 +21,7 @@ export default function App() {
   const [recent, setRecent] = useState<string[]>([]);
   const [kbVisible, setKbVisible] = useState(false);
   const [muted, setMutedState] = useState(isMuted());
+  const [soundPack, setSoundPackState] = useState<SoundPack>(getSoundPack());
   const [isNewBest, setIsNewBest] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -228,6 +230,12 @@ export default function App() {
     test.changeTheme(t);
     closeSettings();
   };
+  const pickSoundPack = (p: SoundPack) => {
+    setSoundPack(p);
+    setSoundPackState(p);
+    keyClick(); // preview the pack, then close like the other picks
+    closeSettings();
+  };
 
   // The theme recolors the whole page through CSS variables, so it lives
   // on the document root where every var() lookup can reach it.
@@ -369,11 +377,13 @@ export default function App() {
         blind={test.blind}
         caretStyle={test.caretStyle}
         theme={test.theme}
+        soundPack={soundPack}
         onMode={pickMode}
         onDifficulty={pickDifficulty}
         onBlind={pickBlind}
         onCaret={pickCaretStyle}
         onTheme={pickTheme}
+        onSoundPack={pickSoundPack}
         bests={bests}
       />
 
