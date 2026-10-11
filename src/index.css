@@ -413,6 +413,12 @@ body {
   will-change: transform;
 }
 
+/* Instant caret: when smooth caret is off the transition is removed, so
+   the caret jumps letter to letter instead of gliding. */
+.type-caret[data-smooth="false"] {
+  transition: none;
+}
+
 /* Caret style variants. TypingArea sizes the box per style (block and
    outline span the next character's width, underline is a short bar at
    the bottom of the line); these rules only change how the box paints.

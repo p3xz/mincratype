@@ -150,6 +150,29 @@ export function saveCaretStyle(c: CaretStyle): void {
   }
 }
 
+const caretSmoothKey = "mincratype-caret-smooth";
+
+/** Reads the saved smooth-caret setting, defaulting to on. */
+export function getCaretSmooth(): boolean {
+  try {
+    const raw = localStorage.getItem(caretSmoothKey);
+    if (raw === "1") return true;
+    if (raw === "0") return false;
+  } catch {
+    // storage unavailable, ignore
+  }
+  return true;
+}
+
+/** Persists the smooth-caret setting across sessions. */
+export function saveCaretSmooth(b: boolean): void {
+  try {
+    localStorage.setItem(caretSmoothKey, b ? "1" : "0");
+  } catch {
+    // storage unavailable, ignore
+  }
+}
+
 const themeKey = "mincratype-theme";
 
 const THEME_IDS: Theme[] = ["overworld", "nether", "end", "deepdark"];

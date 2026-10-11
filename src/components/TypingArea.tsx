@@ -7,6 +7,7 @@ interface Props {
   wordIdx: number;
   blind: boolean;
   caretStyle: CaretStyle;
+  caretSmooth: boolean;
 }
 
 /** One word of the test. Memoized so a keystroke only re-renders the word
@@ -58,7 +59,7 @@ const Word = memo(function Word({
   );
 });
 
-export default function TypingArea({ words, typed, wordIdx, blind, caretStyle }: Props) {
+export default function TypingArea({ words, typed, wordIdx, blind, caretStyle, caretSmooth }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLDivElement>(null);
@@ -138,7 +139,7 @@ export default function TypingArea({ words, typed, wordIdx, blind, caretStyle }:
           />
         ))}
       </div>
-      <div ref={caretRef} className="type-caret" data-style={caretStyle} />
+      <div ref={caretRef} className="type-caret" data-style={caretStyle} data-smooth={caretSmooth} />
     </div>
   );
 }

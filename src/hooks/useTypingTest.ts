@@ -5,7 +5,7 @@ import { GIT_WORDS } from "../data/gitWords";
 import { HINDI_WORDS } from "../data/hindiWords";
 import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
-import { getBlindMode, getCaretStyle, getDifficulty, getTheme, saveBlindMode, saveCaretStyle, saveDifficulty, saveTheme } from "../lib/storage";
+import { getBlindMode, getCaretSmooth, getCaretStyle, getDifficulty, getTheme, saveBlindMode, saveCaretSmooth, saveCaretStyle, saveDifficulty, saveTheme } from "../lib/storage";
 
 /** Timer modes are plain seconds: 15/30/60/120 are the presets, and users can
  *  also type a custom number of seconds. Everything that is not a word, quote,
@@ -288,6 +288,9 @@ export function useTypingTest(initialMode: TestMode = 30) {
   const [blind, setBlind] = useState<boolean>(() => getBlindMode());
   /** Caret style: pure display state, so no ref is needed. */
   const [caretStyle, setCaretStyle] = useState<CaretStyle>(() => getCaretStyle());
+  /** Smooth caret: the caret glides between letters (a short CSS
+   *  transition) instead of jumping instantly. Pure display state. */
+  const [caretSmooth, setCaretSmooth] = useState<boolean>(() => getCaretSmooth());
   /** Theme: pure display state, so no ref is needed. */
   const [theme, setTheme] = useState<Theme>(() => getTheme());
   const [initial] = useState(() => genWords(initialMode, getDifficulty()));
@@ -557,6 +560,13 @@ export function useTypingTest(initialMode: TestMode = 30) {
     saveCaretStyle(c);
   }, []);
 
+  /** Toggling smooth caret needs no restart: it only switches the caret
+   *  transition on or off, so the current run keeps going untouched. */
+  const changeCaretSmooth = useCallback((b: boolean) => {
+    setCaretSmooth(b);
+    saveCaretSmooth(b);
+  }, []);
+
   /** Switching theme needs no restart: it only recolors, so the current
    *  run keeps going untouched. */
   const changeTheme = useCallback((t: Theme) => {
@@ -583,6 +593,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     difficulty,
     blind,
     caretStyle,
+    caretSmooth,
     theme,
     words,
     quoteAuthor,
@@ -597,6 +608,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     changeDifficulty,
     changeBlind,
     changeCaretStyle,
+    changeCaretSmooth,
     changeTheme,
     finish,
     getLive,

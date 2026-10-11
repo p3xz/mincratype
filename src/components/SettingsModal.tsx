@@ -11,12 +11,14 @@ interface Props {
   difficulty: Difficulty;
   blind: boolean;
   caretStyle: CaretStyle;
+  caretSmooth: boolean;
   theme: Theme;
   soundPack: SoundPack;
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
   onBlind: (b: boolean) => void;
   onCaret: (c: CaretStyle) => void;
+  onCaretSmooth: (b: boolean) => void;
   onTheme: (t: Theme) => void;
   onSoundPack: (p: SoundPack) => void;
   bests: Record<TestMode, PersonalBest | null>;
@@ -31,12 +33,14 @@ export default function SettingsModal({
   difficulty,
   blind,
   caretStyle,
+  caretSmooth,
   theme,
   soundPack,
   onMode,
   onDifficulty,
   onBlind,
   onCaret,
+  onCaretSmooth,
   onTheme,
   onSoundPack,
   bests,
@@ -78,12 +82,14 @@ export default function SettingsModal({
               difficulty={difficulty}
               blind={blind}
               caretStyle={caretStyle}
+              caretSmooth={caretSmooth}
               theme={theme}
               soundPack={soundPack}
               onMode={onMode}
               onDifficulty={onDifficulty}
               onBlind={onBlind}
               onCaret={onCaret}
+              onCaretSmooth={onCaretSmooth}
               onTheme={onTheme}
               onSoundPack={onSoundPack}
               bests={bests}

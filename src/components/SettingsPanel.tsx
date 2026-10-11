@@ -10,12 +10,14 @@ interface Props {
   difficulty: Difficulty;
   blind: boolean;
   caretStyle: CaretStyle;
+  caretSmooth: boolean;
   theme: Theme;
   soundPack: SoundPack;
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
   onBlind: (b: boolean) => void;
   onCaret: (c: CaretStyle) => void;
+  onCaretSmooth: (b: boolean) => void;
   onTheme: (t: Theme) => void;
   onSoundPack: (p: SoundPack) => void;
   bests: Record<TestMode, PersonalBest | null>;
@@ -107,7 +109,7 @@ function CustomTimer({
 
 /** All mode and difficulty controls. Lives inside the settings modal now;
  *  the start screen is just a logo and a START button. */
-export default function SettingsPanel({ mode, difficulty, blind, caretStyle, theme, soundPack, onMode, onDifficulty, onBlind, onCaret, onTheme, onSoundPack, bests }: Props) {
+export default function SettingsPanel({ mode, difficulty, blind, caretStyle, caretSmooth, theme, soundPack, onMode, onDifficulty, onBlind, onCaret, onCaretSmooth, onTheme, onSoundPack, bests }: Props) {
   return (
     <div className="flex flex-col items-center text-center">
       <div className="flex flex-col items-center gap-6">
@@ -216,6 +218,22 @@ export default function SettingsPanel({ mode, difficulty, blind, caretStyle, the
           <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
             Pick the caret: a thin line, a block over the next character, a
             short underline, or an outline box.
+          </p>
+        </div>
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            SMOOTH CARET
+          </p>
+          <button
+            onClick={() => onCaretSmooth(!caretSmooth)}
+            aria-pressed={caretSmooth}
+            className={`mc-btn mc-btn-sm ${caretSmooth ? "mc-btn-primary" : ""}`}
+          >
+            {caretSmooth ? "ON" : "OFF"}
+          </button>
+          <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
+            Glide the caret between letters, or snap it instantly from letter
+            to letter.
           </p>
         </div>
         <div>

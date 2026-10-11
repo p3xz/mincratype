@@ -226,6 +226,10 @@ export default function App() {
     test.changeCaretStyle(c);
     closeSettings();
   };
+  const pickCaretSmooth = (b: boolean) => {
+    test.changeCaretSmooth(b);
+    closeSettings();
+  };
   const pickTheme = (t: Parameters<typeof test.changeTheme>[0]) => {
     test.changeTheme(t);
     closeSettings();
@@ -326,6 +330,7 @@ export default function App() {
                     wordIdx={test.wordIdx}
                     blind={test.blind}
                     caretStyle={test.caretStyle}
+                    caretSmooth={test.caretSmooth}
                   />
                 ) : (
                   test.result && (
@@ -376,12 +381,14 @@ export default function App() {
         difficulty={test.difficulty}
         blind={test.blind}
         caretStyle={test.caretStyle}
+        caretSmooth={test.caretSmooth}
         theme={test.theme}
         soundPack={soundPack}
         onMode={pickMode}
         onDifficulty={pickDifficulty}
         onBlind={pickBlind}
         onCaret={pickCaretStyle}
+        onCaretSmooth={pickCaretSmooth}
         onTheme={pickTheme}
         onSoundPack={pickSoundPack}
         bests={bests}
