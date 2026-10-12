@@ -3,6 +3,7 @@ import { isWordPoolMode, modeLabel } from "../hooks/useTypingTest";
 import type { TestResult } from "../hooks/useTypingTest";
 import type { PersonalBest } from "../lib/storage";
 import { getHistory } from "../lib/storage";
+import { downloadResultCard } from "../lib/resultCard";
 import WpmChart from "./WpmChart";
 import KeyHeatmap from "./KeyHeatmap";
 import PbSparkline from "./PbSparkline";
@@ -107,6 +108,9 @@ export default function Results({ result, isNewBest, best, onRetry, onMenu }: Pr
       <div className="flex flex-wrap justify-center gap-4 mt-8">
         <button onClick={onRetry} className="mc-btn mc-btn-primary">
           RETRY
+        </button>
+        <button onClick={() => downloadResultCard(result)} className="mc-btn">
+          SHARE CARD
         </button>
         <button onClick={onMenu} className="mc-btn">
           CHANGE MODE

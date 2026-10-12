@@ -27,7 +27,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 - [x] Toggle for smooth caret vs instant caret
 
 ## Social and sharing
-- [ ] Shareable result card exported as a PNG image
+- [x] Shareable result card exported as a PNG image
 - [ ] Copy-to-clipboard result summary text
 - [ ] Multiplayer race over WebSocket (simple rooms)
 
