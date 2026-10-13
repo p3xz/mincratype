@@ -28,7 +28,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 
 ## Social and sharing
 - [x] Shareable result card exported as a PNG image
-- [ ] Copy-to-clipboard result summary text
+- [x] Copy-to-clipboard result summary text
 - [ ] Multiplayer race over WebSocket (simple rooms)
 
 ## Platform

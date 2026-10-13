@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { isWordPoolMode, modeLabel } from "../hooks/useTypingTest";
 import type { TestResult } from "../hooks/useTypingTest";
@@ -28,6 +29,46 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
 }
 
 export default function Results({ result, isNewBest, best, onRetry, onMenu }: Props) {
+  const [copied, setCopied] = useState(false);
+
+  /** Plain-text summary of the run, ready to paste anywhere. */
+  function summaryText(): string {
+    const mode =
+      modeLabel(result.mode) +
+      (result.difficulty !== "all" && isWordPoolMode(result.mode) ? ` ${result.difficulty}` : "");
+    return [
+      `MINCRATYPE - ${mode}`,
+      `${Math.round(result.wpm)} WPM (raw ${Math.round(result.raw)})`,
+      `accuracy ${result.accuracy.toFixed(1)}% - consistency ${result.consistency.toFixed(1)}%`,
+      `time ${Math.round(result.durationSec)}s`,
+      `mincratype.vercel.app`,
+    ].join("\n");
+  }
+
+  /** Copy the summary, falling back to a temp textarea where the async
+   *  clipboard API is unavailable. */
+  async function copySummary() {
+    const text = summaryText();
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -111,6 +152,9 @@ export default function Results({ result, isNewBest, best, onRetry, onMenu }: Pr
         </button>
         <button onClick={() => downloadResultCard(result)} className="mc-btn">
           SHARE CARD
+        </button>
+        <button onClick={copySummary} className="mc-btn">
+          {copied ? "COPIED" : "COPY RESULT"}
         </button>
         <button onClick={onMenu} className="mc-btn">
           CHANGE MODE
