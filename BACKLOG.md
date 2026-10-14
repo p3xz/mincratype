@@ -29,10 +29,12 @@ Small, shippable improvements. One per day keeps the commit graph green.
 ## Social and sharing
 - [x] Shareable result card exported as a PNG image
 - [x] Copy-to-clipboard result summary text
-- [ ] Multiplayer race over WebSocket (simple rooms)
 
 ## Platform
 - [ ] PWA support: installable, works offline after first load
 - [ ] Mobile haptics via navigator.vibrate on keypress
 - [ ] Respect prefers-reduced-motion for caret and slide animations
 - [ ] Focus mode: hide keyboard and live stats while typing
+
+## Blocked: needs a backend (moved 2026-10-14 so the daily commit keeps shipping)
+- Deferred, no backend server planned: Multiplayer race over WebSocket (simple rooms)
