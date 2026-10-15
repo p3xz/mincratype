@@ -31,7 +31,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 - [x] Copy-to-clipboard result summary text
 
 ## Platform
-- [ ] PWA support: installable, works offline after first load
+- [x] PWA support: installable, works offline after first load
 - [ ] Mobile haptics via navigator.vibrate on keypress
 - [ ] Respect prefers-reduced-motion for caret and slide animations
 - [ ] Focus mode: hide keyboard and live stats while typing
