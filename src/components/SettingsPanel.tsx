@@ -13,6 +13,7 @@ interface Props {
   caretSmooth: boolean;
   theme: Theme;
   soundPack: SoundPack;
+  haptics: boolean;
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
   onBlind: (b: boolean) => void;
@@ -20,6 +21,7 @@ interface Props {
   onCaretSmooth: (b: boolean) => void;
   onTheme: (t: Theme) => void;
   onSoundPack: (p: SoundPack) => void;
+  onHaptics: (b: boolean) => void;
   bests: Record<TestMode, PersonalBest | null>;
 }
 
@@ -109,7 +111,7 @@ function CustomTimer({
 
 /** All mode and difficulty controls. Lives inside the settings modal now;
  *  the start screen is just a logo and a START button. */
-export default function SettingsPanel({ mode, difficulty, blind, caretStyle, caretSmooth, theme, soundPack, onMode, onDifficulty, onBlind, onCaret, onCaretSmooth, onTheme, onSoundPack, bests }: Props) {
+export default function SettingsPanel({ mode, difficulty, blind, caretStyle, caretSmooth, theme, soundPack, haptics, onMode, onDifficulty, onBlind, onCaret, onCaretSmooth, onTheme, onSoundPack, onHaptics, bests }: Props) {
   return (
     <div className="flex flex-col items-center text-center">
       <div className="flex flex-col items-center gap-6">
@@ -282,6 +284,22 @@ export default function SettingsPanel({ mode, difficulty, blind, caretStyle, car
             Clacky is bright and sharp, thocky is deep and creamy, silent
             is a barely-there tap for quiet rooms. Picking a pack plays a
             preview.
+          </p>
+        </div>
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            HAPTICS
+          </p>
+          <button
+            onClick={() => onHaptics(!haptics)}
+            aria-pressed={haptics}
+            className={`mc-btn mc-btn-sm ${haptics ? "mc-btn-primary" : ""}`}
+          >
+            {haptics ? "ON" : "OFF"}
+          </button>
+          <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
+            Buzz lightly on every keypress on phones that support vibration.
+            Does nothing on desktop.
           </p>
         </div>
         <div>

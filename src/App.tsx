@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTypingTest, isCodeMode, isDailyMode, isGitMode, isHindiMode, isQuoteMode, isWordMode, isZenMode } from "./hooks/useTypingTest";
 import { getAllBests, getBest, saveBest, getDailyBest, saveDailyBest, recordHistory } from "./lib/storage";
 import { finishChime, getSoundPack, isMuted, keyClick, keyThock, setMuted, setSoundPack, warmAudio } from "./lib/sound";
+import { isHapticsEnabled, keyBuzz, setHapticsEnabled } from "./lib/haptics";
 import type { SoundPack } from "./lib/sound";
 import TypingArea from "./components/TypingArea";
 import StartScreen from "./components/StartScreen";
@@ -22,6 +23,7 @@ export default function App() {
   const [kbVisible, setKbVisible] = useState(false);
   const [muted, setMutedState] = useState(isMuted());
   const [soundPack, setSoundPackState] = useState<SoundPack>(getSoundPack());
+  const [haptics, setHapticsState] = useState(isHapticsEnabled());
   const [isNewBest, setIsNewBest] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -90,6 +92,10 @@ export default function App() {
     else keyClick();
   }, []);
 
+  const buzzFor = useCallback((key: string) => {
+    keyBuzz(key);
+  }, []);
+
   const doRestart = useCallback(() => {
     test.restart();
   }, [test]);
@@ -145,6 +151,7 @@ export default function App() {
         warmAudio();
         pushRecent(pillLabel(e.code, e.key));
         playFor(e.key);
+        buzzFor(e.key);
         setPhase("active");
         return;
       }
@@ -152,6 +159,7 @@ export default function App() {
       if (!e.repeat) {
         pushRecent(pillLabel(e.code, e.key));
         playFor(e.key);
+        buzzFor(e.key);
         routeRef.current(e.key);
       }
     };
@@ -165,7 +173,7 @@ export default function App() {
       window.removeEventListener("keyup", up);
       window.removeEventListener("blur", blur);
     };
-  }, [pressVisual, pushRecent, playFor]);
+  }, [pressVisual, pushRecent, playFor, buzzFor]);
 
   const onKbPress = useCallback(
     (code: string, action: string | undefined, down: boolean) => {
@@ -178,9 +186,10 @@ export default function App() {
         return;
       }
       playFor(action);
+      buzzFor(action);
       routeRef.current(action);
     },
-    [pressVisual, pushRecent, playFor]
+    [pressVisual, pushRecent, playFor, buzzFor]
   );
 
   const toggleMute = useCallback(() => {
@@ -238,6 +247,13 @@ export default function App() {
     setSoundPack(p);
     setSoundPackState(p);
     keyClick(); // preview the pack, then close like the other picks
+    closeSettings();
+  };
+
+  /** Toggling haptics needs no restart: it only gates future buzzes. */
+  const pickHaptics = (b: boolean) => {
+    setHapticsEnabled(b);
+    setHapticsState(b);
     closeSettings();
   };
 
@@ -384,6 +400,7 @@ export default function App() {
         caretSmooth={test.caretSmooth}
         theme={test.theme}
         soundPack={soundPack}
+        haptics={haptics}
         onMode={pickMode}
         onDifficulty={pickDifficulty}
         onBlind={pickBlind}
@@ -391,6 +408,7 @@ export default function App() {
         onCaretSmooth={pickCaretSmooth}
         onTheme={pickTheme}
         onSoundPack={pickSoundPack}
+        onHaptics={pickHaptics}
         bests={bests}
       />
 

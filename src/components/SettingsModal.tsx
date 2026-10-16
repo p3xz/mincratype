@@ -14,6 +14,7 @@ interface Props {
   caretSmooth: boolean;
   theme: Theme;
   soundPack: SoundPack;
+  haptics: boolean;
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
   onBlind: (b: boolean) => void;
@@ -21,6 +22,7 @@ interface Props {
   onCaretSmooth: (b: boolean) => void;
   onTheme: (t: Theme) => void;
   onSoundPack: (p: SoundPack) => void;
+  onHaptics: (b: boolean) => void;
   bests: Record<TestMode, PersonalBest | null>;
 }
 
@@ -36,6 +38,7 @@ export default function SettingsModal({
   caretSmooth,
   theme,
   soundPack,
+  haptics,
   onMode,
   onDifficulty,
   onBlind,
@@ -43,6 +46,7 @@ export default function SettingsModal({
   onCaretSmooth,
   onTheme,
   onSoundPack,
+  onHaptics,
   bests,
 }: Props) {
   return (
@@ -85,6 +89,7 @@ export default function SettingsModal({
               caretSmooth={caretSmooth}
               theme={theme}
               soundPack={soundPack}
+              haptics={haptics}
               onMode={onMode}
               onDifficulty={onDifficulty}
               onBlind={onBlind}
@@ -92,6 +97,7 @@ export default function SettingsModal({
               onCaretSmooth={onCaretSmooth}
               onTheme={onTheme}
               onSoundPack={onSoundPack}
+              onHaptics={onHaptics}
               bests={bests}
             />
           </motion.div>
