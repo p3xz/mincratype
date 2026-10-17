@@ -33,7 +33,7 @@ Small, shippable improvements. One per day keeps the commit graph green.
 ## Platform
 - [x] PWA support: installable, works offline after first load
 - [x] Mobile haptics via navigator.vibrate on keypress
-- [ ] Respect prefers-reduced-motion for caret and slide animations
+- [x] Respect prefers-reduced-motion for caret and slide animations
 - [ ] Focus mode: hide keyboard and live stats while typing
 
 ## Blocked: needs a backend (moved 2026-10-14 so the daily commit keeps shipping)
