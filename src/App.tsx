@@ -231,6 +231,10 @@ export default function App() {
     test.changeBlind(b);
     closeSettings();
   };
+  const pickFocus = (b: boolean) => {
+    test.changeFocus(b);
+    closeSettings();
+  };
   const pickCaretStyle = (c: Parameters<typeof test.changeCaretStyle>[0]) => {
     test.changeCaretStyle(c);
     closeSettings();
@@ -264,6 +268,10 @@ export default function App() {
   }, [test.theme]);
 
   const live = test.getLive();
+
+  // Focus mode hides the keyboard and the live top-bar stats while a run
+  // is active. Stats return on the results screen.
+  const focusRun = test.focus && test.status === "running";
 
   return (
     <div className="min-h-full bg-cave-950 text-stone-200 flex flex-col">
@@ -323,6 +331,7 @@ export default function App() {
                 timeLeft={test.timeLeft}
                 wpm={live.wpm}
                 acc={live.acc}
+                focus={focusRun}
                 muted={muted}
                 onToggleMute={toggleMute}
                 onRestart={restartAndFocus}
@@ -365,7 +374,7 @@ export default function App() {
                 )}
               </div>
               <Keyboard
-                visible={kbVisible}
+                visible={kbVisible && !focusRun}
                 pressed={pressed}
                 recent={recent}
                 onPress={onKbPress}
@@ -396,6 +405,7 @@ export default function App() {
         mode={test.mode}
         difficulty={test.difficulty}
         blind={test.blind}
+        focus={test.focus}
         caretStyle={test.caretStyle}
         caretSmooth={test.caretSmooth}
         theme={test.theme}
@@ -404,6 +414,7 @@ export default function App() {
         onMode={pickMode}
         onDifficulty={pickDifficulty}
         onBlind={pickBlind}
+        onFocus={pickFocus}
         onCaret={pickCaretStyle}
         onCaretSmooth={pickCaretSmooth}
         onTheme={pickTheme}

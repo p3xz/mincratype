@@ -128,6 +128,27 @@ export function saveBlindMode(b: boolean): void {
   }
 }
 
+const focusModeKey = "mincratype-focus-mode";
+
+/** Reads the saved focus-mode setting, defaulting to off. */
+export function getFocusMode(): boolean {
+  try {
+    return localStorage.getItem(focusModeKey) === "1";
+  } catch {
+    // storage unavailable, ignore
+  }
+  return false;
+}
+
+/** Persists the focus-mode setting across sessions. */
+export function saveFocusMode(b: boolean): void {
+  try {
+    localStorage.setItem(focusModeKey, b ? "1" : "0");
+  } catch {
+    // storage unavailable, ignore
+  }
+}
+
 const caretStyleKey = "mincratype-caret-style";
 
 /** Reads the saved caret style, defaulting to "line". */

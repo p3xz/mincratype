@@ -9,6 +9,8 @@ interface Props {
   timeLeft: number;
   wpm: number;
   acc: number;
+  /** Focus mode: while a run is active the live stat readouts stay hidden. */
+  focus: boolean;
   muted: boolean;
   onToggleMute: () => void;
   onRestart: () => void;
@@ -24,6 +26,7 @@ export default function TopBar({
   timeLeft,
   wpm,
   acc,
+  focus,
   muted,
   onToggleMute,
   onRestart,
@@ -47,22 +50,28 @@ export default function TopBar({
           <div className="xp-fill" style={{ width: `${pct}%` }} />
         </div>
         <div className="flex items-center gap-2 sm:gap-4 font-type text-xs sm:text-sm">
-          <span className="pixel-text text-[10px] text-xp-400">
-            {zen && "ZEN "}
-            {Math.ceil(timeLeft)}
-            {countMode ? "w" : "s"}
-          </span>
+          {!focus && (
+            <span className="pixel-text text-[10px] text-xp-400">
+              {zen && "ZEN "}
+              {Math.ceil(timeLeft)}
+              {countMode ? "w" : "s"}
+            </span>
+          )}
           {showDiff && (
             <span className="pixel-text text-[8px] text-grass-400" title={difficulty === "short" ? "short words only (1-4 letters)" : "long words only (5+ letters)"}>
               {difficulty.toUpperCase()}
             </span>
           )}
-          <span className="text-stone-400">
-            <span className="text-stone-200 font-bold">{Math.round(wpm)}</span> wpm
-          </span>
-          <span className="text-stone-400">
-            <span className="text-stone-200 font-bold">{Math.round(acc)}%</span> acc
-          </span>
+          {!focus && (
+            <>
+              <span className="text-stone-400">
+                <span className="text-stone-200 font-bold">{Math.round(wpm)}</span> wpm
+              </span>
+              <span className="text-stone-400">
+                <span className="text-stone-200 font-bold">{Math.round(acc)}%</span> acc
+              </span>
+            </>
+          )}
         </div>
         <button
           onClick={onToggleMute}

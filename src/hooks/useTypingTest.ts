@@ -5,7 +5,7 @@ import { GIT_WORDS } from "../data/gitWords";
 import { HINDI_WORDS } from "../data/hindiWords";
 import { randomQuote } from "../data/quotes";
 import { accuracy, consistency, wpmFromChars } from "../lib/stats";
-import { getBlindMode, getCaretSmooth, getCaretStyle, getDifficulty, getTheme, saveBlindMode, saveCaretSmooth, saveCaretStyle, saveDifficulty, saveTheme } from "../lib/storage";
+import { getBlindMode, getCaretSmooth, getCaretStyle, getDifficulty, getFocusMode, getTheme, saveBlindMode, saveCaretSmooth, saveCaretStyle, saveDifficulty, saveFocusMode, saveTheme } from "../lib/storage";
 
 /** Timer modes are plain seconds: 15/30/60/120 are the presets, and users can
  *  also type a custom number of seconds. Everything that is not a word, quote,
@@ -286,6 +286,9 @@ export function useTypingTest(initialMode: TestMode = 30) {
   /** Blind mode: typed feedback on the active word stays hidden until the
    *  word is done. Pure display state, so no ref is needed. */
   const [blind, setBlind] = useState<boolean>(() => getBlindMode());
+  /** Focus mode: the on-screen keyboard and the live top-bar stats (timer,
+   *  wpm, acc) hide while a run is active. Pure display state. */
+  const [focus, setFocus] = useState<boolean>(() => getFocusMode());
   /** Caret style: pure display state, so no ref is needed. */
   const [caretStyle, setCaretStyle] = useState<CaretStyle>(() => getCaretStyle());
   /** Smooth caret: the caret glides between letters (a short CSS
@@ -553,6 +556,13 @@ export function useTypingTest(initialMode: TestMode = 30) {
     saveBlindMode(b);
   }, []);
 
+  /** Toggling focus mode needs no restart: it only hides the keyboard and
+   *  live stats during the current run, so the run keeps going untouched. */
+  const changeFocus = useCallback((b: boolean) => {
+    setFocus(b);
+    saveFocusMode(b);
+  }, []);
+
   /** Switching caret style needs no restart: it only changes how the caret
    *  renders, so the current run keeps going untouched. */
   const changeCaretStyle = useCallback((c: CaretStyle) => {
@@ -592,6 +602,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     mode,
     difficulty,
     blind,
+    focus,
     caretStyle,
     caretSmooth,
     theme,
@@ -607,6 +618,7 @@ export function useTypingTest(initialMode: TestMode = 30) {
     changeMode,
     changeDifficulty,
     changeBlind,
+    changeFocus,
     changeCaretStyle,
     changeCaretSmooth,
     changeTheme,

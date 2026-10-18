@@ -9,6 +9,7 @@ interface Props {
   mode: TestMode;
   difficulty: Difficulty;
   blind: boolean;
+  focus: boolean;
   caretStyle: CaretStyle;
   caretSmooth: boolean;
   theme: Theme;
@@ -17,6 +18,7 @@ interface Props {
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
   onBlind: (b: boolean) => void;
+  onFocus: (b: boolean) => void;
   onCaret: (c: CaretStyle) => void;
   onCaretSmooth: (b: boolean) => void;
   onTheme: (t: Theme) => void;
@@ -111,7 +113,7 @@ function CustomTimer({
 
 /** All mode and difficulty controls. Lives inside the settings modal now;
  *  the start screen is just a logo and a START button. */
-export default function SettingsPanel({ mode, difficulty, blind, caretStyle, caretSmooth, theme, soundPack, haptics, onMode, onDifficulty, onBlind, onCaret, onCaretSmooth, onTheme, onSoundPack, onHaptics, bests }: Props) {
+export default function SettingsPanel({ mode, difficulty, blind, focus, caretStyle, caretSmooth, theme, soundPack, haptics, onMode, onDifficulty, onBlind, onFocus, onCaret, onCaretSmooth, onTheme, onSoundPack, onHaptics, bests }: Props) {
   return (
     <div className="flex flex-col items-center text-center">
       <div className="flex flex-col items-center gap-6">
@@ -316,6 +318,22 @@ export default function SettingsPanel({ mode, difficulty, blind, caretStyle, car
           <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
             Hide typed feedback on the current word: no green, red, or extra
             letters until the word is done.
+          </p>
+        </div>
+        <div>
+          <p className="pixel-text text-[8px] text-stone-500 tracking-widest mb-3">
+            FOCUS MODE
+          </p>
+          <button
+            onClick={() => onFocus(!focus)}
+            aria-pressed={focus}
+            className={`mc-btn mc-btn-sm ${focus ? "mc-btn-primary" : ""}`}
+          >
+            {focus ? "ON" : "OFF"}
+          </button>
+          <p className="text-[10px] text-stone-600 font-type mt-3 max-w-xs">
+            Hide the keyboard and the live timer, wpm, and accuracy stats
+            while a run is active. Full stats still show on the results screen.
           </p>
         </div>
       </div>

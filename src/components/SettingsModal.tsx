@@ -10,6 +10,7 @@ interface Props {
   mode: TestMode;
   difficulty: Difficulty;
   blind: boolean;
+  focus: boolean;
   caretStyle: CaretStyle;
   caretSmooth: boolean;
   theme: Theme;
@@ -18,6 +19,7 @@ interface Props {
   onMode: (m: TestMode) => void;
   onDifficulty: (d: Difficulty) => void;
   onBlind: (b: boolean) => void;
+  onFocus: (b: boolean) => void;
   onCaret: (c: CaretStyle) => void;
   onCaretSmooth: (b: boolean) => void;
   onTheme: (t: Theme) => void;
@@ -34,6 +36,7 @@ export default function SettingsModal({
   mode,
   difficulty,
   blind,
+  focus,
   caretStyle,
   caretSmooth,
   theme,
@@ -42,6 +45,7 @@ export default function SettingsModal({
   onMode,
   onDifficulty,
   onBlind,
+  onFocus,
   onCaret,
   onCaretSmooth,
   onTheme,
@@ -85,6 +89,7 @@ export default function SettingsModal({
               mode={mode}
               difficulty={difficulty}
               blind={blind}
+              focus={focus}
               caretStyle={caretStyle}
               caretSmooth={caretSmooth}
               theme={theme}
@@ -93,6 +98,7 @@ export default function SettingsModal({
               onMode={onMode}
               onDifficulty={onDifficulty}
               onBlind={onBlind}
+              onFocus={onFocus}
               onCaret={onCaret}
               onCaretSmooth={onCaretSmooth}
               onTheme={onTheme}
