@@ -4,7 +4,7 @@ interface Props {
 
 const SOCIALS = [
   { label: "GITHUB", href: "https://github.com/p3xz" },
-  { label: "LINKEDIN", href: "https://linkedin.com/in/namish-yadav-639769408" },
+  { label: "LINKEDIN", href: "https://linkedin.com/in/namishyadav" },
   { label: "INSTAGRAM", href: "https://instagram.com/nam7sh" },
   { label: "PORTFOLIO", href: "https://namishhh.vercel.app" },
 ];
